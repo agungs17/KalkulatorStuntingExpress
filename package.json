@@ -4,10 +4,10 @@
   "description": "",
   "main": "./index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node index.js",
     "build": "node esbuild.config.js",
     "build:watch": "node esbuild.watch.js",
-    "dev:run": "nodemon --watch dist --watch .env --exec node dist/index.js",
+    "dev:run": "nodemon --watch dist --watch .env --exec node index.js",
     "dev": "npm-run-all --parallel build:watch dev:run"
   },
   "author": "kalkulatorstuntingexpress",
