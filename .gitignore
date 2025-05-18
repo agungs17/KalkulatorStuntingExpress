@@ -23,7 +23,3 @@ package-lock.json
 !.yarn/releases
 !.yarn/plugins
 !.yarn/patches
-
-# esbuild
-index.js
-index.js.map
