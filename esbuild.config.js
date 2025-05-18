@@ -5,7 +5,7 @@ async function run() {
     entryPoints: ['src/index.js'],
     bundle: true,
     platform: 'node',
-    target: ['node18'],
+    target: ['node20'],
     outdir: 'dist',
     format: 'esm',
     sourcemap: true,
