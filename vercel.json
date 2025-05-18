@@ -2,11 +2,11 @@
   "version": 2,
   "builds": [
     {
-      "src": "src/server.js",
+      "src": "esbuild.config.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/api" }
+    { "src": "/(.*)", "dest": "/api/index" }
   ]
 }
