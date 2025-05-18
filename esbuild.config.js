@@ -1,19 +1,14 @@
-const { build } = require('esbuild') 
+// esbuild.config.js
+const { build } = require('esbuild');
 
-async function run() {
-  const ctx = await build({
-    entryPoints: ['src/index.js'],
-    bundle: true,
-    platform: 'node',
-    target: ['node20'],
-    outdir: 'dist',
-    format: 'cjs',
-    sourcemap: true,
-    logLevel: 'info',
-    external: ['express', 'dotenv']
-  });
-
-  await ctx.watch();
-}
-
-run().catch(() => process.exit(1));
+build({
+  entryPoints: ['src/index.js'],
+  bundle: true,
+  platform: 'node',
+  target: ['node18'], // Railway umumnya pakai node 18
+  outdir: 'dist',
+  format: 'cjs', // CommonJS agar tidak error dynamic require
+  sourcemap: true,
+  logLevel: 'info',
+  external: ['express', 'dotenv']
+}).catch(() => process.exit(1));
