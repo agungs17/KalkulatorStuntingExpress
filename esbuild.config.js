@@ -1,4 +1,4 @@
-import { build } from 'esbuild';
+const { build } = require('esbuild') 
 
 async function run() {
   const ctx = await build({
