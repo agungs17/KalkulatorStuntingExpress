@@ -1,8 +1,15 @@
 {
   "version": 2,
-  "build": {
-    "env": {
-      "ENABLE_VC_BUILD": "1"
+  "builds": [
+    {
+      "src": "dist/index.js",
+      "use": "@vercel/node"
     }
-  }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "dist/index.js"
+    }
+  ]
 }
