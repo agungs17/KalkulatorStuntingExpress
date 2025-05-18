@@ -3,7 +3,7 @@ const { context } = require('esbuild');
 
 (async () => {
   const ctx = await context({
-    entryPoints: ['src/index.js'],
+    entryPoints: ['./index.js'],
     bundle: true,
     platform: 'node',
     target: ['node18'],
