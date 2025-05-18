@@ -1,0 +1,25 @@
+{
+  "name": "kalkulatorstuntingexpress",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./dist/index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "build": "node esbuild.config.js",
+    "build:watch": "esbuild src/index.js --bundle --platform=node --target=node18 --outdir=dist --format=esm --sourcemap --watch",
+    "dev:run": "nodemon --watch dist --watch .env --exec node dist/index.js",
+    "dev": "npm-run-all --parallel build:watch dev:run"
+  },
+  "author": "kalkulatorstuntingexpress",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.4",
+    "nodemon": "^3.1.10",
+    "npm-run-all": "^4.1.5"
+  }
+}

@@ -1,0 +1,25 @@
+# Folder hasil build
+dist/
+
+# Dependency
+node_modules/
+
+# Environment variable
+.env
+
+# Log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Optional
+.DS_Store
+
+# cache
+yarn.lock
+package-lock.json
+.yarn/*
+.yarn/install-state.gz
+!.yarn/releases
+!.yarn/plugins
+!.yarn/patches
