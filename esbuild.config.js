@@ -1,11 +1,11 @@
 const { build } = require('esbuild');
 
 build({
-  entryPoints: ['./index.js'],
+  entryPoints: ['./src/index.js'],
   bundle: true,
   platform: 'node',
   target: ['node18'],
-  outdir: 'dist',
+  outdir: '.',
   format: 'cjs',
   sourcemap: true,
   logLevel: 'info',
