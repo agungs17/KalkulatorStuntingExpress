@@ -1,12 +1,11 @@
 import express from "express";
 import { formatResponse } from "./utils/scripts";
+import authRoute from "./routes/authRoute";
 
 export function createServer() {
   const app = express();
-
-  app.get("/", (req, res) => {
-    return formatResponse({ identifier : 'healthCheck',  res, msgSuccess: "Server is running properly!" });;
-  });
+  app.get("/", (_, res) => formatResponse({ identifier : 'healthCheck',  res, msgSuccess: "Server is running properly!" }))
+  app.use("/auth", authRoute);
 
   return app;
 }
