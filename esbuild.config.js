@@ -7,9 +7,10 @@ async function run() {
     platform: 'node',
     target: ['node20'],
     outdir: 'dist',
-    format: 'esm',
+    format: 'cjs',
     sourcemap: true,
     logLevel: 'info',
+    external: ['express', 'dotenv']
   });
 
   await ctx.watch();
