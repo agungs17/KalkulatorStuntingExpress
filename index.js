@@ -1,5 +1,5 @@
-import { createServer } from './server';
-import config from './configurations/index';
+import { createServer } from './src/server';
+import config from './src/configurations/index';
 
 const app = createServer();
 
