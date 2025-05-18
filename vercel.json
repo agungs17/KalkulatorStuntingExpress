@@ -1,12 +1,9 @@
 {
   "version": 2,
   "builds": [
-    {
-      "src": "esbuild.config.js",
-      "use": "@vercel/node"
-    }
+    { "src": "dist/index.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "/api/index" }
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
