@@ -8,6 +8,5 @@ build({
   outdir: 'api',
   format: 'cjs',
   sourcemap: true,
-  logLevel: 'info',
-  external: ['express', 'dotenv']
+  logLevel: 'info'
 }).catch(() => process.exit(1));

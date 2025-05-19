@@ -9,7 +9,7 @@ const esbuild = require('esbuild');
     outdir: 'api',
     format: 'cjs',
     sourcemap: true,
-    external: ['express', 'dotenv']
+    logLevel: 'info'
   });
 
   await ctx.watch();
