@@ -1,11 +1,10 @@
 import { build } from 'esbuild';
-import config from './src/configurations/index.js';
 
 build({
   entryPoints: ['index.js'],
   bundle: true,
   platform: 'node',
-  target: [config.esBuild],
+  target: 'node18',
   outdir: 'dist',
   format: 'esm',
   sourcemap: true,

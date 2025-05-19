@@ -1,12 +1,11 @@
 import esbuild from 'esbuild';
-import config from './src/configurations/index.js';
 
 (async () => {
   const ctx = await esbuild.context({
     entryPoints: ['./index.js'],
     bundle: true,
     platform: 'node',
-    target: config.esBuild,
+    target: 'node18',
     outdir: 'dist',
     format: 'esm',
     sourcemap: true,
