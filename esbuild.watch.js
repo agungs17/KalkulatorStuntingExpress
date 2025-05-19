@@ -1,12 +1,13 @@
 // esbuild.watch.js
 const { context } = require('esbuild');
+const { default: config } = require('./src/configurations');
 
 (async () => {
   const ctx = await context({
     entryPoints: ['index.js'],
     bundle: true,
     platform: 'node',
-    target: ['node18'],
+    target: [config.runtime],
     outdir: 'dist',
     format: 'cjs',
     sourcemap: true,
