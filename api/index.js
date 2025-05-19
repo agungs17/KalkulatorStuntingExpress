@@ -4,6 +4,10 @@ var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
 var __getProtoOf = Object.getPrototypeOf;
 var __hasOwnProp = Object.prototype.hasOwnProperty;
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -20,6 +24,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
+
+// index.js
+var index_exports = {};
+__export(index_exports, {
+  default: () => index_default
+});
+module.exports = __toCommonJS(index_exports);
 
 // src/configurations/index.js
 var import_dotenv = __toESM(require("dotenv"));
@@ -110,4 +122,5 @@ var port = configurations_default.port || 3e3;
 server_default.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
+var index_default = server_default;
 //# sourceMappingURL=index.js.map
