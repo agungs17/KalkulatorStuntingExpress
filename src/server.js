@@ -15,3 +15,5 @@ export function createServer() {
   app.use("/api", apiRouter);
   return app;
 }
+
+export const config = { runtime: 'nodejs18.x' };
