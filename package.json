@@ -2,12 +2,12 @@
   "name": "kalkulatorstuntingexpress",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "api/index.js",
   "scripts": {
-    "start": "node dist/index.js",
+    "start": "node api/index.js",
     "build": "node esbuild.config.js",
     "build:watch": "node esbuild.watch.js",
-    "dev:run": "nodemon --watch dist --watch .env --exec node dist/index.js",
+    "dev:run": "nodemon --watch api --watch .env --exec node api/index.js",
     "dev": "npm-run-all --parallel build:watch dev:run"
   },
   "author": "kalkulatorstuntingexpress",

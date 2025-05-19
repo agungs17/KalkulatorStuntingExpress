@@ -5,7 +5,7 @@ build({
   bundle: true,
   platform: 'node',
   target: 'node18',
-  outdir: 'dist',
+  outdir: 'api',
   format: 'cjs',
   sourcemap: true,
   logLevel: 'info',

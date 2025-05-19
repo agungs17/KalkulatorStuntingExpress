@@ -6,7 +6,7 @@ const esbuild = require('esbuild');
     bundle: true,
     platform: 'node',
     target: 'node18',
-    outdir: 'dist',
+    outdir: 'api',
     format: 'cjs',
     sourcemap: true,
     external: ['express', 'dotenv']
