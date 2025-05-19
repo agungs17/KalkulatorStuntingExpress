@@ -3,11 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
-  "type": "module",
   "scripts": {
     "start": "node dist/index.js",
-    "build": "node esbuild.config.mjs",
-    "build:watch": "node esbuild.watch.mjs",
+    "build": "node esbuild.config.js",
+    "build:watch": "node esbuild.watch.js",
     "dev:run": "nodemon --watch dist --watch .env --exec node dist/index.js",
     "dev": "npm-run-all --parallel build:watch dev:run"
   },

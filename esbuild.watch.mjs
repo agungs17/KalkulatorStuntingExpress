@@ -7,7 +7,7 @@ import esbuild from 'esbuild';
     platform: 'node',
     target: 'node18',
     outdir: 'dist',
-    format: 'esm',
+    format: 'cjs',
     sourcemap: true,
     external: ['express', 'dotenv']
   });
