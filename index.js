@@ -8,5 +8,5 @@ app.listen(port, () => {
 });
 
 export const config = {
-  runtime: configEnv?.runtime
+  runtime: configEnv?.runtime || 'nodejs18.x'
 };
