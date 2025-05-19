@@ -1,7 +1,5 @@
-import { createServer } from './src/server';
 import config from './src/configurations';
-
-const app = createServer();
+import app from './src/server';
 
 const port = config.port || 3000;
 
