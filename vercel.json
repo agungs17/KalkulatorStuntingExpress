@@ -14,5 +14,8 @@
     "api/index.js": {
       "runtime": "@vercel/node@3.2.29"
     }
-  }
+  },
+  "redirects": [
+    { "source": "/", "destination": "/api", "permanent": true }
+  ]
 }

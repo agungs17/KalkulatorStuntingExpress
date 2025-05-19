@@ -6,7 +6,6 @@ const app = express();
 const apiRouter = express.Router();
 
 app.use(express.json());
-app.get("/", (_, res) => res.redirect("/api"));
 
 apiRouter.get("/", (_, res) =>
   formatResponse({
