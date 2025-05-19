@@ -8,11 +8,11 @@ const esbuild = require("esbuild");
     target: "node18",
     outdir: "api",
     format: "cjs",
-    sourcemap: true,
+    sourcemap: 'external',
     logLevel: "info",
-    minify: false,
+    minify: true,
     treeShaking: true,
-    packages: "external",
+    packages: "external"
   });
 
   await ctx.watch();
