@@ -1,7 +1,6 @@
 import express from "express";
 import { formatResponse } from "./utils/scripts";
 import auth from "./routes/auth";
-import configEnv from "./configurations";
 
 const app = express();
 const apiRouter = express.Router();
@@ -21,7 +20,3 @@ apiRouter.use("/auth", auth);
 app.use("/api", apiRouter);
 
 export default app;
-
-export const config = {
-  runtime: configEnv?.runtime
-};

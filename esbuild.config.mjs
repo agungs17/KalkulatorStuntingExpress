@@ -1,13 +1,13 @@
-const { build } = require('esbuild');
-const { default: config } = require('./src/configurations');
+import { build } from 'esbuild';
+import config from './src/configurations/index.js';
 
 build({
   entryPoints: ['index.js'],
   bundle: true,
   platform: 'node',
-  target: [config.runtime],
+  target: [config.esBuild],
   outdir: 'dist',
-  format: 'cjs',
+  format: 'esm',
   sourcemap: true,
   logLevel: 'info',
   external: ['express', 'dotenv']
