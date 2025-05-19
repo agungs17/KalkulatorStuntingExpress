@@ -1,15 +1,5 @@
 {
   "version": 2,
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/index.js"
-    }
-  ],
   "functions": {
     "api/index.js": {
       "runtime": "@vercel/node@3.2.29"
@@ -17,5 +7,9 @@
   },
   "redirects": [
     { "source": "/", "destination": "/api", "permanent": true }
+  ],
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index.js" },
+    { "source": "/(.*)", "destination": "/api/index.js" }
   ]
 }

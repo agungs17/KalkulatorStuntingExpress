@@ -1,11 +1,14 @@
 import express from "express";
 import { formatResponse } from "./utils/scripts";
 import auth from "./routes/auth";
+import config from "./configurations";
 
 const app = express();
 const apiRouter = express.Router();
 
 app.use(express.json());
+
+if(config.nodeEnv === 'dev') app.get("/", (_, res) => res.redirect("/api"));
 
 apiRouter.get("/", (_, res) =>
   formatResponse({
