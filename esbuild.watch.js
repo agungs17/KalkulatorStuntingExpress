@@ -1,4 +1,4 @@
-import esbuild from 'esbuild';
+const esbuild = require('esbuild');
 
 (async () => {
   const ctx = await esbuild.context({
