@@ -1,9 +1,8 @@
-// routes/auth.js
-import express from "express";
-import { loginController } from "../controllers/auth";
+// import express from "express";
+// import { loginController } from "../controllers/auth";
 
-const app = express.Router();
+// const app = express.Router();
 
-app.get("/login", loginController);
+// app.get("/login", loginController);
 
-export default app;
+// export default app;

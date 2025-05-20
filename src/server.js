@@ -1,6 +1,6 @@
 import express from "express";
 import { formatResponse } from "./utils/scripts";
-import auth from "./routes/auth";
+// import auth from "./routes/auth";
 import config from "./configurations";
 
 const app = express();
@@ -17,7 +17,7 @@ apiRouter.get("/", (_, res) =>
     msgSuccess: "API is running properly!",
   })
 );
-apiRouter.use("/auth", auth);
+// apiRouter.use("/auth", auth);
 
 app.use("/api", apiRouter);
 

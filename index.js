@@ -3,8 +3,13 @@ import app from './src/server';
 
 const port = configEnv.port || 3000;
 
-app.listen(port, () => {
-  console.log(`Server running on http://localhost:${port}`);
-});
+if (configEnv.nodeEnv === 'dev') {
+  app.listen(port, () => {
+    console.log(`Server running on http://localhost:${port}`);
+  });
+}
 
-export default app
+// for serverless vercel
+export default function handler(req, res) {
+  return app(req, res);
+}

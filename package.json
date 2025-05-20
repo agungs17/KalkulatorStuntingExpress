@@ -10,6 +10,7 @@
     "git:track:index" : "git update-index --no-assume-unchanged api/index.js",
     "git:track:index.map" : "git update-index --no-assume-unchanged api/index.js.map",
     "build": "npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
+    "build:track": "npm run git:track:index && npm run git:track:index.map && node esbuild.config.js",
     "build:watch": "npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.watch.js",
     "dev:run": "nodemon --watch api --watch .env --exec node api/index.js",
     "dev": "npm-run-all --parallel build:watch dev:run"
