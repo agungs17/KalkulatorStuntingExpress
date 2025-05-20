@@ -1,7 +1,3 @@
-# api
-api/*
-!api/.gitkeep
-
 # Dependency
 node_modules/
 
