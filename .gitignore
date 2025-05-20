@@ -1,3 +1,6 @@
+# api
+api/*
+
 # Dependency
 node_modules/
 
