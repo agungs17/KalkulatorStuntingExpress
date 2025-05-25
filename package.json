@@ -5,11 +5,11 @@
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
-    "git:untrack:index" : "git update-index --assume-unchanged api/index.js",
-    "git:untrack:index.map" : "git update-index --assume-unchanged api/index.js.map",
-    "git:track:index" : "git update-index --no-assume-unchanged api/index.js",
-    "git:track:index.map" : "git update-index --no-assume-unchanged api/index.js.map",
     "build": "npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
+    "git:untrack:index": "git update-index --assume-unchanged api/index.js",
+    "git:untrack:index.map": "git update-index --assume-unchanged api/index.js.map",
+    "git:track:index": "git update-index --no-assume-unchanged api/index.js",
+    "git:track:index.map": "git update-index --no-assume-unchanged api/index.js.map",
     "build:track": "npm run git:track:index && npm run git:track:index.map && node esbuild.config.js",
     "build:watch": "npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.watch.js",
     "dev:run": "nodemon --watch api --watch .env --exec node api/index.js",
@@ -20,8 +20,13 @@
   "dependencies": {
     "@supabase/supabase-js": "^2.49.4",
     "bcryptjs": "^3.0.2",
+    "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "express-rate-limit": "^5.5.1",
+    "joi": "^17.13.3",
+    "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^7.0.3"
   },
   "devDependencies": {
     "esbuild": "^0.25.4",

@@ -1,8 +1,11 @@
-// import express from "express";
-// import { loginController } from "../controllers/auth";
+import express from "express";
+import { loginController, refreshTokenController, registerController } from "../controllers/auth";
+import { validator } from "../middlewares/validator";
 
-// const app = express.Router();
+const auth = express.Router();
 
-// app.get("/login", loginController);
+auth.post("/register", validator, registerController);
+auth.post("/login", validator, loginController);
+auth.post("/refresh-token", refreshTokenController);
 
-// export default app;
+export default auth;
