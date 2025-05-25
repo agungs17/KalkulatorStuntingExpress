@@ -20,3 +20,6 @@ package-lock.json
 !.yarn/releases
 !.yarn/plugins
 !.yarn/patches
+
+# esbuild
+api/html
