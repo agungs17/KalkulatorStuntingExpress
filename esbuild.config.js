@@ -18,7 +18,7 @@ build({
       assets: [
         {
           from: ['./src/html/*.html'],
-          to: ['./html']
+          to: ['./']
         },
       ],
       watch: false,

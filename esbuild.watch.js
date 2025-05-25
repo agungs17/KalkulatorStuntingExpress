@@ -19,7 +19,7 @@ const copy = require("esbuild-plugin-copy").default;
       assets: [
         {
           from: ['./src/html/*.html'],
-          to: ['./html'], // will copy to `api/html` because outdir is `api`
+          to: ['./']
         },
       ],
       watch: true,
