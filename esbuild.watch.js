@@ -19,7 +19,7 @@ const copy = require("esbuild-plugin-copy").default;
       assets: [
         {
           from: ['./src/html/*.html'],
-          to: ['./']
+          to: ['./html']
         },
       ],
       watch: true,

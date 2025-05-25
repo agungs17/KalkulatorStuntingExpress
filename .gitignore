@@ -22,4 +22,4 @@ package-lock.json
 !.yarn/patches
 
 # esbuild
-api/*.html
+api/html

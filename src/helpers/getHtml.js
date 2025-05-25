@@ -6,7 +6,11 @@ import dayjs from './dayjsLocale';
 const getHtml = async (nameFile, propsHtml = {}) => {
   const { userName = 'User', header = 'Your title', buttonName = 'Button name', link = '', expiredLabel = '' } = propsHtml
   const date = dayjs();
-  const filePath = path.join(process.cwd(), 'api', nameFile);
+
+  let filePath
+  if(config.nodeEnv === 'dev') filePath = path.join(process.cwd(), 'api', 'html', nameFile);
+  else filePath = path.join(process.cwd(), 'html', nameFile);
+
   let html = await fs.readFile(filePath, 'utf-8');
 
   html = html.replace(/{{userName}}/g, userName);
