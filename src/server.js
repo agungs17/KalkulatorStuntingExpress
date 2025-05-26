@@ -24,7 +24,7 @@ apiRouter.use("/auth", auth);
 apiRouter.use("/invite", invite);
 
 // jobs - this route to split task (non blocking task)
-apiRouter.use("/jobs", job);
+apiRouter.use("/job", job);
 
 // mount apiRouter /api
 app.use("/api", apiRouter);

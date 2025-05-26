@@ -10,6 +10,7 @@ export const sendEmailController = async (req, res) => {
 
     return formatResponse({ req, res, code: 200, data: null, message: "Email berhasil dikirim." });
   } catch (err) {
+      console.log(err)
      return formatResponse({ req, res, code: 500, error: String(err) });
   }
 };
