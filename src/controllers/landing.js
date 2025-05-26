@@ -72,7 +72,7 @@ export const changePasswordEmailController = async(req, res) => {
   }
 }
 
-export const verifyPasswordEmail = async(req, res) => {
+export const verifyPasswordEmailController = async(req, res) => {
   const authHeader = req.headers.authorization || "";
   const token = authHeader.replace("Bearer ", "");
   const { password } = req.body
@@ -109,7 +109,7 @@ export const verifyPasswordEmail = async(req, res) => {
       .from("tokens_table")
       .delete()
       .eq("user_id", userId)
-      .eq("type", "forgot-password-email");
+      .in("type", ["forgot-password-email", "login"]);
 
     return formatResponse({ req, res, code: 200, message: "Password berhasil diubah.", data: null });
 
