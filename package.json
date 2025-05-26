@@ -5,7 +5,7 @@
   "main": "api/index.js",
   "scripts": {
     "start": "node api/index.js",
-    "build": "npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
+    "build": "rm -rf api && npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
     "git:untrack:index": "git update-index --assume-unchanged api/index.js",
     "git:untrack:index.map": "git update-index --assume-unchanged api/index.js.map",
     "git:track:index": "git update-index --no-assume-unchanged api/index.js",
@@ -30,7 +30,6 @@
   },
   "devDependencies": {
     "esbuild": "^0.25.4",
-    "esbuild-plugin-copy": "^2.1.1",
     "nodemon": "^3.1.10",
     "npm-run-all": "^4.1.5"
   }

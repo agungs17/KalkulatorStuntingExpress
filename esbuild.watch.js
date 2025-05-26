@@ -1,5 +1,4 @@
 const esbuild = require("esbuild");
-const copy = require("esbuild-plugin-copy").default;
 
 (async () => {
   const ctx = await esbuild.context({
@@ -13,19 +12,7 @@ const copy = require("esbuild-plugin-copy").default;
     logLevel: "info",
     minify: true,
     treeShaking: true,
-    packages: "external",
-    plugins: [
-    copy({
-      assets: [
-        {
-          from: ['./src/html/*.html'],
-          to: ['./html']
-        },
-      ],
-      watch: true,
-      verbose: true
-    })
-  ]
+    packages: "external"
   });
 
   await ctx.watch();

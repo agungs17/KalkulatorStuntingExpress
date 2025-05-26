@@ -7,9 +7,7 @@ const getHtml = async (nameFile, propsHtml = {}) => {
   const { userName = 'User', header = 'Your title', buttonName = 'Button name', link = '', expiredLabel = '' } = propsHtml
   const date = dayjs();
 
-  let filePath
-  if(config.nodeEnv === 'dev') filePath = path.join(process.cwd(), 'api', 'html', nameFile);
-  else filePath = path.join(process.cwd(), 'html', nameFile);
+  const filePath = path.join(process.cwd(), 'public', 'html', nameFile);
 
   let html = await fs.readFile(filePath, 'utf-8');
 

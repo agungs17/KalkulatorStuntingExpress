@@ -1,5 +1,4 @@
 const { build } = require("esbuild");
-const copy = require("esbuild-plugin-copy").default;
 
 build({
   entryPoints: ["index.js"],
@@ -12,17 +11,5 @@ build({
   logLevel: "info",
   minify: true,
   treeShaking: true,
-  packages: "external",
-  plugins: [
-    copy({
-      assets: [
-        {
-          from: ['./src/html/*.html'],
-          to: ['./html']
-        },
-      ],
-      watch: false,
-      verbose: true
-    })
-  ]
+  packages: "external"
 }).catch(() => process.exit(1));
