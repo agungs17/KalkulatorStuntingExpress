@@ -1,6 +1,5 @@
 import nodemailer from "nodemailer";
 import config from "../configurations";
-import axiosInstance from "./axiosInstance";
 
 const configNodemailer = config?.nodemailer || {};
 
@@ -17,14 +16,10 @@ const nodemailerInstance = configNodemailer.useNodemailer
     })
   : null;
 
-const sendEmail = async({ to, subject, html }) => {
+const sendEmail = async ({ to, subject, html }) => {
   if (!nodemailerInstance) throw new Error("Nodemailer not configured");
 
-  await axiosInstance.post("/api/job/send-email", {
-    to: to,
-    subject: subject,
-    html,
-  })
+  return await nodemailerInstance.sendMail({ from: `"Kalkulator Stunting" <${configNodemailer.email}>`, to, subject, html });
 };
 
 export { nodemailerInstance, sendEmail };
