@@ -46,19 +46,22 @@ export const registerController = async (req, res) => {
       if (childrenError) message += " Tetapi gagal menyimpan data anak.";
     }
 
+    let html
     if (code === 200 && id && useNodemailer) {
       const type = "email-verification";
       const {token, expiredLabel, expiredDatetime} = generateToken({ id, type });
+      html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
       await supabaseInstance
         .from('tokens_table')
         .insert({ user_id: id, token, type, expires_at: expiredDatetime });
       
-      const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
-      await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
       message += " silahkan verifikasi email anda!";
     }
 
-    return formatResponse({ req, res, code, error, message });
+    formatResponse({ req, res, code, error, message });
+    
+    await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
+    
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
