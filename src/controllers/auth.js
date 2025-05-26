@@ -47,10 +47,11 @@ export const registerController = async (req, res) => {
     }
 
     if (code === 200 && id && useNodemailer) {
-      const {token, expiredLabel, expiredDatetime} = generateToken({ id, type : 'email-verification' });
+      const type = "email-verification";
+      const {token, expiredLabel, expiredDatetime} = generateToken({ id, type });
       await supabaseInstance
         .from('tokens_table')
-        .insert({ user_id: id, token, type: 'email-verification', expires_at: expiredDatetime });
+        .insert({ user_id: id, token, type, expires_at: expiredDatetime });
       
       const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
       sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })

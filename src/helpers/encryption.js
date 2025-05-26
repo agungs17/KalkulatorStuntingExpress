@@ -1,36 +1,23 @@
-import argon2 from 'argon2';
+import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import config from "../configurations";
-import dayjs from "./dayjsLocale";
+import dayjs from "dayjs";
 import { TIME_UNIT_MAP_TYPE } from "../constants/type";
 
 const JWT_SECRET = config.jwtSecret;
 
-export const hashPassword = async (plainPassword) => {
-    if (!plainPassword) return null;
-    try {
-        const hash = await argon2.hash(plainPassword, {
-          type: argon2.argon2id,
-          memoryCost: 2 ** 13,
-          timeCost: 2,
-          parallelism: 1
-        });
-        return hash;
-    } catch (err) {
-        console.error('Hashing error:', err);
-        return null;
-    }
-};
+export const hashPassword = async(plainPassword) => {
+    if(!plainPassword) return null
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(plainPassword, salt);
+    return hash
+}
 
-export const comparePassword = async (plainPassword, hashedPassword) => {
-    if (!plainPassword || !hashedPassword) return false;
-    try {
-        return await argon2.verify(hashedPassword, plainPassword);
-    } catch (err) {
-        console.error('Verification error:', err);
-        return false;
-    }
-};
+export const comparePassword = async(plainPassword, hashPassword) => {
+    if(!plainPassword || !hashPassword) return false
+
+    return await bcrypt.compare(plainPassword, hashPassword);
+}
 
 export const generateToken = (payload) => {
   if (!JWT_SECRET) throw new Error('❌ Tambahkan JWT_SECRET di .env');

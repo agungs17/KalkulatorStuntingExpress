@@ -2,10 +2,10 @@ import express from "express";
 import { changePasswordEmailController, verifyEmailController, verifyPasswordEmailController } from "../controllers/landing";
 import { validator } from "../middlewares/validator";
 
-const invite = express.Router();
+const landing = express.Router();
 
-invite.get("/verify-email", verifyEmailController);
-invite.get("/change-password", changePasswordEmailController);
-invite.post("/verify-password", validator, verifyPasswordEmailController);
+landing.get("/verify-email", verifyEmailController);
+landing.get("/change-password", changePasswordEmailController);
+landing.post("/verify-password", validator, verifyPasswordEmailController);
 
-export default invite;
+export default landing;

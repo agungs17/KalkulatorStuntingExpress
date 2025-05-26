@@ -30,20 +30,21 @@ export const resendEmailVerificationController = async (req, res) => {
     }
 
     if(!error && user && !user.email_verification) {
-      const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type: "email-verification" });
+      const type = "email-verification";
+      const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
       await supabaseInstance
       .from("tokens_table")
       .delete()
       .eq("user_id", userId)
-      .eq("type", "email-verification");
+      .eq("type", type);
 
       await supabaseInstance
       .from("tokens_table")
       .insert({
         user_id: userId,
         token,
-        type: "email-verification",
+        type,
         expires_at: expiredDatetime,
       });
 
@@ -78,21 +79,22 @@ export const sendEmailForgotPassword = async (req, res) => {
     }
 
     if(!error && user) {
+      const type = "forgot-password-email";
       const userId = user?.id
-      const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type: "forgot-password-email" });
+      const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
       await supabaseInstance
       .from("tokens_table")
       .delete()
       .eq("user_id", userId)
-      .eq("type", "forgot-password-email");
+      .eq("type", type);
 
       await supabaseInstance
       .from("tokens_table")
       .insert({
         user_id: userId,
         token,
-        type: "forgot-password-email",
+        type,
         expires_at: expiredDatetime,
       });
 
