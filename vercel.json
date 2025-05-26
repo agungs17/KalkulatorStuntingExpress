@@ -2,7 +2,8 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "runtime": "@vercel/node@3.2.29"
+      "runtime": "@vercel/node@3.2.29",
+      "includeFiles": "public/**"
     }
   },
   "redirects": [
