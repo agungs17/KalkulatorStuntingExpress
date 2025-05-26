@@ -17,19 +17,14 @@ const nodemailerInstance = configNodemailer.useNodemailer
     })
   : null;
 
-const sendEmail = ({ to, subject, html }) => {
+const sendEmail = async({ to, subject, html }) => {
   if (!nodemailerInstance) throw new Error("Nodemailer not configured");
 
-  axiosInstance.post("/api/job/send-email", {
+  await axiosInstance.post("/api/job/send-email", {
     to: to,
     subject: subject,
     html,
-  }).then((res) => {
-    console.log("🚀 Email berhasil dikirim:", res?.data);
   })
-  .catch((err) => {
-    console.error("❌ Gagal mengirim email:", err?.message);
-  });
 };
 
 export { nodemailerInstance, sendEmail };

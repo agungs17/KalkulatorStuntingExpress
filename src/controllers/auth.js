@@ -54,7 +54,7 @@ export const registerController = async (req, res) => {
         .insert({ user_id: id, token, type, expires_at: expiredDatetime });
       
       const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
-      sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
+      await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
       message += " silahkan verifikasi email anda!";
     }
 
