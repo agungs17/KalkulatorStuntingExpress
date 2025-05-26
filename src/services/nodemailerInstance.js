@@ -16,10 +16,15 @@ const nodemailerInstance = configNodemailer.useNodemailer
     })
   : null;
 
-const sendEmail = async ({ to, subject, html }) => {
+const sendEmail = ({ to, subject, html }) => {
   if (!nodemailerInstance) throw new Error("Nodemailer not configured");
 
-  await nodemailerInstance.sendMail({ from: `"Kalkulator Stunting" <${configNodemailer.email}>`, to, subject, html });
+  nodemailerInstance.sendMail({ from: `"Kalkulator Stunting" <${configNodemailer.email}>`, to, subject, html }).then(info => {
+    if(config.logging) console.log("Email sent:", info.response);
+  })
+  .catch(error => {
+    if(config.logging) console.error("Error sending email:", error);
+  });
 };
 
 export { nodemailerInstance, sendEmail };
