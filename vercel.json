@@ -1,10 +1,10 @@
 {
   "version": 2,
+  "regions": ["sin1"],
   "functions": {
     "api/index.js": {
       "runtime": "@vercel/node@5.1.16",
-      "includeFiles": "public/**",
-      "region": "sin1"
+      "includeFiles": "public/**"
     }
   },
   "redirects": [
