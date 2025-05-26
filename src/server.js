@@ -5,7 +5,6 @@ import formatResponse from "./helpers/formatResponse";
 import auth from "./routes/auth";
 import landing from "./routes/landing";
 import invite from "./routes/invite";
-import job from "./routes/job";
 
 const app = express();
 const apiRouter = express.Router();
@@ -22,9 +21,6 @@ apiRouter.use("/auth", auth);
 
 // invite
 apiRouter.use("/invite", invite);
-
-// jobs - this route to split task (non blocking task)
-apiRouter.use("/job", job);
 
 // mount apiRouter /api
 app.use("/api", apiRouter);
