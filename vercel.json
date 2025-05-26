@@ -2,9 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.js": {
-      "runtime": "@vercel/node@latest",
-      "memory": 1024,
-      "maxDuration": 10,
+      "runtime": "@vercel/node@5.1.16",
       "includeFiles": "public/**"
     }
   },
