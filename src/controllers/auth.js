@@ -47,7 +47,7 @@ export const registerController = async (req, res) => {
     }
 
     if (code === 200 && id && useNodemailer) {
-      const type = EMAIL_TYPE["forgot-password-email"].value;
+      const type = EMAIL_TYPE["verification-email"].value;
       const {token, expiredLabel, expiredDatetime} = generateToken({ id, type });
       await supabaseInstance
         .from('tokens_table')
