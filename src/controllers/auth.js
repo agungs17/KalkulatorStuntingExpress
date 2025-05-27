@@ -8,7 +8,7 @@ import { sendEmail } from "../services/nodemailerInstance";
 import { EMAIL_TYPE } from "../constants/email";
 
 export const registerController = async (req, res) => {
-  const { useNodemailer } = config || {};
+  const { useNodemailer } = config.nodemailer || {};
   const { email, password, nik, name, children = [] } = req.body;
 
   try {
@@ -47,14 +47,14 @@ export const registerController = async (req, res) => {
     }
 
     if (code === 200 && id && useNodemailer) {
-      const type = "email-verification";
+      const type = EMAIL_TYPE["forgot-password-email"].value;
       const {token, expiredLabel, expiredDatetime} = generateToken({ id, type });
       await supabaseInstance
         .from('tokens_table')
         .insert({ user_id: id, token, type, expires_at: expiredDatetime });
       
-      const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
-      sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
+      const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE["verification-email"] });
+      await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
       message += " silahkan verifikasi email anda!";
     }
 

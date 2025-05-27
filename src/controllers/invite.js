@@ -30,7 +30,7 @@ export const resendEmailVerificationController = async (req, res) => {
     }
 
     if(!error && user && !user.email_verification) {
-      const type = "email-verification";
+      const type = EMAIL_TYPE["verification-email"].value;
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
       await supabaseInstance
@@ -48,8 +48,8 @@ export const resendEmailVerificationController = async (req, res) => {
         expires_at: expiredDatetime,
       });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
-      sendEmail({ to: user.email, subject: "Verifikasi Email Anda", html });
+      const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE["verification-email"] });
+      await sendEmail({ to: user.email, subject: "Verifikasi Email Anda", html });
     }
     
     return formatResponse({ req, res, code, message, error });
@@ -79,7 +79,7 @@ export const sendEmailForgotPassword = async (req, res) => {
     }
 
     if(!error && user) {
-      const type = "forgot-password-email";
+      const type = EMAIL_TYPE["forgot-password-email"].value;
       const userId = user?.id
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
@@ -98,8 +98,8 @@ export const sendEmailForgotPassword = async (req, res) => {
         expires_at: expiredDatetime,
       });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `change-password?token=${token}`, expiredLabel, ...EMAIL_TYPE.forgot_password_email });
-      sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
+      const html = await getHtml("email-template.html", { userName: user.name, link: `change-password?token=${token}`, expiredLabel, ...EMAIL_TYPE["forgot-password-email"] });
+      await sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
     }
 
     return formatResponse({ req, res, code, message, error });

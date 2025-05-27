@@ -2,6 +2,7 @@ import supabaseInstance from "../services/supabaseInstance";
 import { comparePassword, decodeToken, hashPassword } from "../helpers/encryption";
 import getHtml from "../helpers/getHtml";
 import formatResponse from "../helpers/formatResponse";
+import { EMAIL_TYPE } from "../constants/email";
 
 export const verifyEmailController = async(req, res) => {
   const { token } = req.query;
@@ -46,8 +47,9 @@ export const verifyEmailController = async(req, res) => {
 export const changePasswordEmailController = async(req, res) => {
   const { token } = req.query;
 
+  const type = EMAIL_TYPE[type].value
   const decoded = decodeToken(token)
-  if(decoded?.type !== 'forgot-password-email' || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
+  if(decoded?.type !== type || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
 
   try {
     const userId = decoded?.id;
@@ -56,7 +58,7 @@ export const changePasswordEmailController = async(req, res) => {
       .from("tokens_table")
       .select("token")
       .eq("user_id", userId)
-      .eq("type", "forgot-password-email")
+      .eq("type", type)
       .order("created_at", { ascending: false })
       .limit(1)
       .single();
@@ -79,7 +81,7 @@ export const verifyPasswordEmailController = async(req, res) => {
 
   const decoded = decodeToken(token);
   if (decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : decoded });
-  if (decoded?.type !== "forgot-password-email") return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : "Token type invalid" });
+  if (decoded?.type !== type) return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : "Token type invalid" });
 
   const userId = decoded?.id;
 
@@ -88,7 +90,7 @@ export const verifyPasswordEmailController = async(req, res) => {
       .from("tokens_table")
       .select("token, users_table(id, password_hash)")
       .eq("user_id", userId)
-      .eq("type", "forgot-password-email")
+      .eq("type", type)
       .order("created_at", { ascending: false })
       .limit(1)
       .single()
@@ -109,7 +111,7 @@ export const verifyPasswordEmailController = async(req, res) => {
       .from("tokens_table")
       .delete()
       .eq("user_id", userId)
-      .in("type", ["forgot-password-email", "login"]);
+      .in("type", [type, "login"]);
 
     return formatResponse({ req, res, code: 200, message: "Password berhasil diubah.", data: null });
 
