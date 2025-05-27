@@ -7,8 +7,9 @@ import { EMAIL_TYPE } from "../constants/email";
 export const verifyEmailController = async(req, res) => {
   const { token } = req.query;
 
+  const type = EMAIL_TYPE["verification-email"].value
   const decoded = decodeToken(token)
-  if(decoded?.type !== 'email-verification' || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
+  if(decoded?.type !== type || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
 
   try {
     const userId = decoded?.id;
@@ -17,7 +18,7 @@ export const verifyEmailController = async(req, res) => {
       .from("tokens_table")
       .select("token")
       .eq("user_id", userId)
-      .eq("type", "email-verification")
+      .eq("type", type)
       .order("created_at", { ascending: false })
       .limit(1)
       .single();
@@ -35,7 +36,7 @@ export const verifyEmailController = async(req, res) => {
         .from("tokens_table")
         .delete()
         .eq("user_id", userId)
-        .eq("type", "email-verification");
+        .eq("type", type);
     }
 
     return res.status(200).send("Email berhasil diverifikasi. Terima kasih!");
@@ -47,7 +48,7 @@ export const verifyEmailController = async(req, res) => {
 export const changePasswordEmailController = async(req, res) => {
   const { token } = req.query;
 
-  const type = EMAIL_TYPE[type].value
+  const type = EMAIL_TYPE['forgot-password-email'].value
   const decoded = decodeToken(token)
   if(decoded?.type !== type || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
 
@@ -79,6 +80,7 @@ export const verifyPasswordEmailController = async(req, res) => {
   const token = authHeader.replace("Bearer ", "");
   const { password } = req.body
 
+  const type = EMAIL_TYPE["forgot-password-email"].value
   const decoded = decodeToken(token);
   if (decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : decoded });
   if (decoded?.type !== type) return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : "Token type invalid" });
