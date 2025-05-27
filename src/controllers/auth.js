@@ -8,7 +8,7 @@ import { sendEmail } from "../services/nodemailerInstance";
 import { EMAIL_TYPE } from "../constants/email";
 
 export const registerController = async (req, res) => {
-  const { useNodemailer } = config.nodemailer || {};
+  const { useNodemailer } = config || {};
   const { email, password, nik, name, children = [] } = req.body;
 
   try {
@@ -54,7 +54,7 @@ export const registerController = async (req, res) => {
         .insert({ user_id: id, token, type, expires_at: expiredDatetime });
       
       const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
-      await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
+      sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
       message += " silahkan verifikasi email anda!";
     }
 
@@ -134,17 +134,13 @@ export const refreshTokenController = async (req, res) => {
     if (decoded !== "Token expired") return formatResponse({ req, res, code: 400, message: "Token belum expired, tidak perlu refresh.", error : "Token not expired" });
     if (error || !tokenData) return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau sudah tidak berlaku.", error : "Token not found" });
 
-    await supabaseInstance
-      .from("tokens_table")
-      .delete()
-      .eq("token", oldToken)
-      .eq("type", "login");
-
     const { token: newToken, expiredDatetime } = generateToken({ id: tokenData.user_id, type: "login" });
 
     await supabaseInstance
       .from("tokens_table")
-      .insert({ user_id: tokenData.user_id, token: newToken, type: "login", expires_at: expiredDatetime });
+      .eq("token", oldToken)
+      .eq("type", "login")
+      .update({ token: newToken, expires_at: expiredDatetime });
 
     return formatResponse({ req, res, code: 200, message: "Token berhasil diperbarui.", data: { token: newToken } });
   } catch (err) {

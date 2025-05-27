@@ -49,7 +49,7 @@ export const resendEmailVerificationController = async (req, res) => {
       });
 
       const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verify_email });
-      await sendEmail({ to: user.email, subject: "Verifikasi Email Anda", html });
+      sendEmail({ to: user.email, subject: "Verifikasi Email Anda", html });
     }
     
     return formatResponse({ req, res, code, message, error });
@@ -99,7 +99,7 @@ export const sendEmailForgotPassword = async (req, res) => {
       });
 
       const html = await getHtml("email-template.html", { userName: user.name, link: `change-password?token=${token}`, expiredLabel, ...EMAIL_TYPE.forgot_password_email });
-      await sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
+      sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
     }
 
     return formatResponse({ req, res, code, message, error });

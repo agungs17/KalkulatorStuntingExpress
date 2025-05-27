@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import config from "../configurations";
-import dayjs from "dayjs";
 import { TIME_UNIT_MAP_TYPE } from "../constants/type";
+import dayjs from "./dayjsLocale";
 
 const JWT_SECRET = config.jwtSecret;
 

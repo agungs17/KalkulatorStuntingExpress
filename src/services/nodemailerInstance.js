@@ -1,25 +1,14 @@
-import nodemailer from "nodemailer";
-import config from "../configurations";
+import { supabaseAxiosInstance } from "./axiosInstance";
 
-const configNodemailer = config?.nodemailer || {};
-
-const nodemailerInstance = configNodemailer.useNodemailer
-  ? nodemailer.createTransport({
-      service: configNodemailer?.service,
-      host: configNodemailer?.host,
-      port: configNodemailer?.port,
-      secure: configNodemailer?.port && config?.nodeEnv === "dev" ? false : true,
-      auth: {
-        user: configNodemailer?.email,
-        pass: configNodemailer?.password,
-      },
-    })
-  : null;
-
-const sendEmail = async ({ to, subject, html }) => {
-  if (!nodemailerInstance) throw new Error("Nodemailer not configured");
-
-  return await nodemailerInstance.sendMail({ from: `"Kalkulator Stunting" <${configNodemailer.email}>`, to, subject, html });
+const sendEmail = ({ to, subject, html }) => {
+  if(!to || !subject || !html) throw new Error("to, subject, and html are required parameters");
+  
+  supabaseAxiosInstance.post("/functions/v1/send-email", { to, subject, html }).then(response => {
+    if (response.status !== 200) throw new Error(`Failed to send email: ${response.error}`);
+    return response.data;
+  }).catch(error => {
+    throw error;
+  });
 };
 
-export { nodemailerInstance, sendEmail };
+export { sendEmail };

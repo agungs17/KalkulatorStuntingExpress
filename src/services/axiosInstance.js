@@ -1,14 +1,8 @@
 import axios from "axios";
 import config from "../configurations";
 
-const baseURL = config.baseUrl
+const axiosCreate = (baseURL, headers = {}, timeout = 5000) => axios.create({ baseURL, headers, timeout });
 
-const axiosInstance = axios.create({
-  baseURL,
-  headers: {
-    "Content-Type": "application/json",
-  },
-  timeout: 5000,
-});
+const supabaseAxiosInstance = axiosCreate(config.supabase?.url, { Authorization: `Bearer ${config.supabase?.serviceRoleKey}`, "Content-Type": "application/json" }, 5000);
 
-export default axiosInstance;
+export { supabaseAxiosInstance };
