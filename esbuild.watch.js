@@ -10,8 +10,11 @@ const esbuild = require("esbuild");
     format: "cjs",
     sourcemap: 'external',
     logLevel: "info",
-    minify: true,
-    treeShaking: true,
+    minify: false,
+    minifyWhitespace : false,
+    minifyIdentifiers : false, 
+    minifySyntax : false,
+    treeShaking: false,
     packages: "external"
   });
 

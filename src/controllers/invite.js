@@ -30,7 +30,7 @@ export const resendEmailVerificationController = async (req, res) => {
     }
 
     if(!error && user && !user.email_verification) {
-      const type = EMAIL_TYPE["verification-email"].value;
+      const type = EMAIL_TYPE["verification-email"].type;
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
       await supabaseInstance
@@ -79,7 +79,7 @@ export const sendEmailForgotPassword = async (req, res) => {
     }
 
     if(!error && user) {
-      const type = EMAIL_TYPE["forgot-password-email"].value;
+      const type = EMAIL_TYPE["forgot-password-email"].type;
       const userId = user?.id
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
@@ -98,7 +98,7 @@ export const sendEmailForgotPassword = async (req, res) => {
         expires_at: expiredDatetime,
       });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `change-password?token=${token}`, expiredLabel, ...EMAIL_TYPE["forgot-password-email"] });
+      const html = await getHtml("email-template.html", { userName: user.name, link: `form-password?token=${token}`, expiredLabel, ...EMAIL_TYPE["forgot-password-email"] });
       await sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
     }
 

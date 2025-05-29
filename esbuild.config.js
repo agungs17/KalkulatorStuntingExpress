@@ -7,9 +7,13 @@ build({
   target: "node18",
   outdir: "api",
   format: "cjs",
-  sourcemap: 'external',
+  sourcemap: false,
   logLevel: "info",
   minify: true,
+  minifyWhitespace : true,
+  minifyIdentifiers : true, 
+  minifySyntax : true,
   treeShaking: true,
-  packages: "external"
+  packages: "external",
+  drop: ["console", "debugger"]
 }).catch(() => process.exit(1));
