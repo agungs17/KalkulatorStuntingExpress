@@ -1,6 +1,6 @@
 import supabaseInstance from "../services/supabaseInstance";
 import { decodeToken } from "../helpers/encryption";
-import getHtml from "../helpers/getHtml";
+import { getHtml } from "../helpers/html";
 import { EMAIL_TYPE } from "../constants/email";
 
 export const verifyEmailController = async(req, res) => {
@@ -16,7 +16,7 @@ export const verifyEmailController = async(req, res) => {
     const { data, error } = await supabaseInstance
       .from("tokens_table")
       .select("token")
-      .eq("user_id", userId)
+      .eq("id_user", userId)
       .eq("type", type)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -34,7 +34,7 @@ export const verifyEmailController = async(req, res) => {
       await supabaseInstance
         .from("tokens_table")
         .delete()
-        .eq("user_id", userId)
+        .eq("id_user", userId)
         .eq("type", type);
     }
 
@@ -57,7 +57,7 @@ export const formPasswordController = async(req, res) => {
     const { data, error } = await supabaseInstance
       .from("tokens_table")
       .select("token")
-      .eq("user_id", userId)
+      .eq("id_user", userId)
       .eq("type", type)
       .order("created_at", { ascending: false })
       .limit(1)

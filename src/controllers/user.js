@@ -1,5 +1,5 @@
 import supabaseInstance from "../services/supabaseInstance";
-import { decodeToken, hashPassword } from "../helpers/encryption";
+import { comparePassword, decodeToken, hashPassword } from "../helpers/encryption";
 import { EMAIL_TYPE } from "../constants/email";
 import formatResponse from "../helpers/formatResponse";
 
@@ -22,7 +22,7 @@ export const changePasswordController = async(req, res) => {
     const { data, error } = await supabaseInstance
       .from("tokens_table")
       .select("token, users_table(id, password_hash)")
-      .eq("user_id", userId)
+      .eq("id_user", userId)
       .eq("type", decoded?.type)
       .order("created_at", { ascending: false })
       .limit(1)
@@ -44,7 +44,7 @@ export const changePasswordController = async(req, res) => {
       await supabaseInstance
         .from("tokens_table")
         .delete()
-        .eq("user_id", userId)
+        .eq("id_user", userId)
         .in("type", [typeForgotPasswordEmail, typeLogin]);
     }
     
@@ -52,7 +52,7 @@ export const changePasswordController = async(req, res) => {
      await supabaseInstance
       .from("tokens_table")
       .delete()
-      .filter("user_id", "eq", userId)
+      .filter("id_user", "eq", userId)
       .filter("type", "eq", typeLogin)
       .filter("token", "neq", token);
     }

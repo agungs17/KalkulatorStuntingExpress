@@ -1,15 +1,18 @@
 import supabaseInstance from "../services/supabaseInstance";
-import { ROLE_TYPE } from "../constants/type";
 import formatResponse from "../helpers/formatResponse";
 import { comparePassword, decodeToken, generateToken, hashPassword } from "../helpers/encryption";
 import config from "../configurations";
-import getHtml from "../helpers/getHtml";
+import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
 import { EMAIL_TYPE } from "../constants/email";
+import { ROLE_TYPE } from "../constants/type";
 
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
-  const { email, password, nik, name, children = [] } = req.body;
+  const { email, password, nik, name, children = [], role = 'user' } = req.body;
+
+  const restrictType = ROLE_TYPE.admin
+  if (role === restrictType) return formatResponse({ req, res, code : 401, error : null, message : `Role ${restrictType} tidak di perbolehkan` });
 
   try {
     const { data, error } = await supabaseInstance
@@ -20,7 +23,7 @@ export const registerController = async (req, res) => {
           nik,
           email,
           password_hash: await hashPassword(password),
-          role: ROLE_TYPE.user,
+          role,
           email_verification: !useNodemailer,
         },
       ])
@@ -51,7 +54,7 @@ export const registerController = async (req, res) => {
       const {token, expiredLabel, expiredDatetime} = generateToken({ id, type });
       await supabaseInstance
         .from('tokens_table')
-        .insert({ user_id: id, token, type, expires_at: expiredDatetime });
+        .insert({ id_user: id, token, type, expires_at: expiredDatetime });
       
       const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE["verification-email"] });
       await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
@@ -91,7 +94,7 @@ export const loginController = async (req, res) => {
       const { error: tokenInsertError } = await supabaseInstance
         .from("tokens_table")
         .insert({
-          user_id: user?.id,
+          id_user: user?.id,
           token,
           type: "login",
           expires_at: expiredDatetime,
@@ -117,14 +120,13 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = async (req, res) => {
   const {token : oldToken} = req.body;
 
-
   const decodedOldToken = decodeToken(oldToken);
   if ((decodedOldToken === "Token invalid" || decodedOldToken === "Token empty" || decodedOldToken?.type !== "login") && decodedOldToken !== 'Token expired') return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : decodedOldToken });
 
   try {
     const { data: tokenData, error } = await supabaseInstance
       .from("tokens_table")
-      .select("id, token, user_id")
+      .select("id, token, id_user")
       .eq("token", oldToken)
       .eq("type", "login")
       .limit(1)
@@ -134,7 +136,7 @@ export const refreshTokenController = async (req, res) => {
     if (decoded !== "Token expired") return formatResponse({ req, res, code: 400, message: "Token belum expired, tidak perlu refresh.", error : "Token not expired" });
     if (error || !tokenData) return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau sudah tidak berlaku.", error : "Token not found" });
 
-    const { token: newToken, expiredDatetime } = generateToken({ id: tokenData.user_id, type: "login" });
+    const { token: newToken, expiredDatetime } = generateToken({ id: tokenData.id_user, type: "login" });
 
     await supabaseInstance
       .from("tokens_table")

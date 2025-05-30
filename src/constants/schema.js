@@ -51,7 +51,16 @@ const defaultSchema = Joi.object({
   nik : pattern.nik,
   date_of_birth: pattern.date,
   date_check: pattern.date,
-  children: Joi.array().items(childSchema).optional()
+  children: Joi.array().items(childSchema).optional(),
+  role : Joi.string().trim().required().empty('').messages({
+    'any.required': 'Role wajib diisi',
+    'string.empty': 'Role tidak boleh kosong',
+  }),
+  team_name : Joi.string().trim().min(3).required().empty('').messages({
+    'string.min': 'Nama tim minimal 3 karakter',
+    'any.required': 'Nama tim wajib diisi',
+    'string.empty': 'Nama tim tidak boleh kosong',
+  })
 });
 
 export default defaultSchema;

@@ -6,6 +6,7 @@ import auth from "./routes/auth";
 import landing from "./routes/landing";
 import invite from "./routes/invite";
 import user from "./routes/user";
+import team from "./routes/team";
 
 const app = express();
 const apiRouter = express.Router();
@@ -19,10 +20,12 @@ apiRouter.get("/", (req, res) => formatResponse({ req, res, message: "API is run
 // with /api (apiRouter.use)
 // auth
 apiRouter.use("/auth", auth);
-// invite
-apiRouter.use("/invite", invite);
 // user
 apiRouter.use("/user", user);
+// team
+apiRouter.use("/team", team);
+// invite
+apiRouter.use("/invite", invite);
 
 // mount apiRouter /api
 app.use("/api", apiRouter);

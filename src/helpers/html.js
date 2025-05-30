@@ -2,6 +2,25 @@ import fs from 'fs/promises';
 import path from 'path';
 import config from '../configurations';
 import dayjs from './dayjsLocale';
+import juice from 'juice';
+import { minify } from 'html-minifier-terser' 
+
+const minifyHtml = (html) => {
+  const inlinedHtml = juice(html);
+
+  const minifiedHtml = minify(inlinedHtml, {
+    collapseWhitespace: true,
+    removeComments: true,
+    removeRedundantAttributes: true,
+    useShortDoctype: true,
+    removeEmptyAttributes: true,
+    minifyCSS: true,
+    minifyJS: true,
+    minifyURLs : true
+  });
+
+  return minifiedHtml
+}
 
 const getHtml = async (nameFile, propsHtml = {}) => {
   const { userName = 'User', header = 'Your title', buttonName = 'Button name', link = '', expiredLabel = '' } = propsHtml
@@ -21,7 +40,9 @@ const getHtml = async (nameFile, propsHtml = {}) => {
   html = html.replace(/{{month}}/g, date.format('MMMM'));
   html = html.replace(/{{year}}/g, date.year().toString());
 
-  return html;
+  const minified = minifyHtml(html)
+
+  return minified;
 };
 
-export default getHtml;
+export { getHtml, minifyHtml };

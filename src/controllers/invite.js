@@ -1,7 +1,7 @@
 import supabaseInstance from "../services/supabaseInstance";
 import formatResponse from "../helpers/formatResponse";
 import { generateToken } from "../helpers/encryption";
-import getHtml from "../helpers/getHtml";
+import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
 import { EMAIL_TYPE } from "../constants/email";
 
@@ -36,13 +36,13 @@ export const resendEmailVerificationController = async (req, res) => {
       await supabaseInstance
       .from("tokens_table")
       .delete()
-      .eq("user_id", userId)
+      .eq("id_user", userId)
       .eq("type", type);
 
       await supabaseInstance
       .from("tokens_table")
       .insert({
-        user_id: userId,
+        id_user: userId,
         token,
         type,
         expires_at: expiredDatetime,
@@ -86,13 +86,13 @@ export const sendEmailForgotPassword = async (req, res) => {
       await supabaseInstance
       .from("tokens_table")
       .delete()
-      .eq("user_id", userId)
+      .eq("id_user", userId)
       .eq("type", type);
 
       await supabaseInstance
       .from("tokens_table")
       .insert({
-        user_id: userId,
+        id_user: userId,
         token,
         type,
         expires_at: expiredDatetime,
