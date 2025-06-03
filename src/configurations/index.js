@@ -18,7 +18,12 @@ const config = Object.freeze({
     password : process.env.EMAIL_PASSWORD,
     useNodemailer : process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && process.env.EMAIL_HOST && process.env.EMAIL_SERVICE
   },
-  jwtSecret : process.env.JWT_SECRET,
+  jwt : {
+    jwtSecret : process.env.JWT_SECRET,
+    jwtIgnoreExpiration : process.env.JWT_IGNORE_EXPIRATION === 'true' ? true : false,
+    jwtUnitExpired : process.env.JWT_UNIT_EXPIRED !== undefined ? process.env.JWT_UNIT_EXPIRED : 12,
+    jwtLabelExpired : process.env.JWT_LABEL_EXPIRED || 'hours'
+  },
   logging: process.env.LOGGING || false,
 });
 

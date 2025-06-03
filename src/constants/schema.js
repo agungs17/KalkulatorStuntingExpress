@@ -28,7 +28,7 @@ const pattern = {
 
 const childSchema = Joi.object({
   name : pattern.name,
-  nik: pattern.nik,
+  nik: pattern.nik.optional().allow(''),
   date_of_birth: pattern.date,
   gender: Joi.string().valid(...GENDER_TYPE).required().messages({
     'any.only': 'Format gender salah!',

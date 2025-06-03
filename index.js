@@ -6,7 +6,7 @@ if (!configEnv.supabase.useSupabase) {
   else throw new Error('❌ Upss.. Sepertinya ada konfigurasi yang salah!');
 }
 
-if(!configEnv.jwtSecret) throw new Error('❌ tambahkan JWT_SECRET di .env');
+if(!configEnv.jwt.jwtSecret) throw new Error('❌ tambahkan JWT_SECRET di .env');
 
 // for local development
 if (configEnv.nodeEnv === 'dev') {

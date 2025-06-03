@@ -28,8 +28,7 @@ export const changePasswordController = async(req, res) => {
       .limit(1)
       .single()
 
-    if (error || !data || token !== data?.token) return formatResponse({ req, res, code: 400, message: "Link tidak valid." });
-
+    if(error) return formatResponse({ req, res, code: 500, message: "Gagal mengubah password.", error });
     const cPassword = await comparePassword(password, data?.users_table?.password_hash)
     if(cPassword) return formatResponse({ req, res, code: 400, message: "Password baru tidak boleh sama dengan password sebelumnya." });
 
@@ -58,7 +57,6 @@ export const changePasswordController = async(req, res) => {
     }
 
     return formatResponse({ req, res, code: 200, message: "Password berhasil diubah.", data: null });
-
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }

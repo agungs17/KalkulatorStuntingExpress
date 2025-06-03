@@ -4,7 +4,9 @@ import config from "../configurations";
 import { TIME_UNIT_MAP_TYPE } from "../constants/type";
 import dayjs from "./dayjsLocale";
 
-const JWT_SECRET = config.jwtSecret;
+const JWT_SECRET = config.jwt.jwtSecret;
+const expiredUnit = config.jwt.jwtUnitExpired;
+const typeExpired = config.jwt.jwtLabelExpired;
 
 export const hashPassword = async(plainPassword) => {
     if(!plainPassword) return null
@@ -22,9 +24,6 @@ export const comparePassword = async(plainPassword, hashPassword) => {
 export const generateToken = (payload) => {
   if (!JWT_SECRET) throw new Error('❌ Tambahkan JWT_SECRET di .env');
   if(!payload) return {}
-  
-  const expiredUnit = 2;
-  const typeExpired = 'hours';
 
   const expired = dayjs().add(expiredUnit, typeExpired)
 
@@ -42,7 +41,7 @@ export const decodeToken = (token) => {
   if (!token) return "Token empty";
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration : config.jwt.jwtIgnoreExpiration });
     return decoded;
   } catch (err) {
     if (err.name === "TokenExpiredError") return "Token expired";

@@ -11,57 +11,78 @@ export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
   const { email, password, nik, name, children = [], role = 'user' } = req.body;
 
-  const restrictType = ROLE_TYPE.admin
-  if (role === restrictType) return formatResponse({ req, res, code : 401, error : null, message : `Role ${restrictType} tidak di perbolehkan` });
+  if (role === ROLE_TYPE.admin) {
+    return formatResponse({ req, res, code: 401, message: `Role ${role} tidak diperbolehkan.` });
+  }
 
   try {
-    const { data, error } = await supabaseInstance
+    const password_hash = await hashPassword(password);
+
+    const { data: userData, error: userError } = await supabaseInstance
       .from("users_table")
-      .insert([
-        {
-          name,
-          nik,
-          email,
-          password_hash: await hashPassword(password),
-          role,
-          email_verification: !useNodemailer,
-        },
-      ])
-      .select("id, email");
+      .insert({
+        name,
+        nik,
+        email,
+        password_hash,
+        role,
+        email_verification: !useNodemailer,
+      })
+      .select("id, email")
+      .single();
 
-    let code = 200;
+    if (userError || !userData) {
+      if (userError?.code === '23505') return formatResponse({ req, res, code: 409, message: "Email atau NIK sudah digunakan." });
+      return formatResponse({ req, res, code: 500, message: "Gagal membuat akun.", error: userError });
+    }
+
+    const { id, email: emailUser } = userData;
+
+    if (children.length > 0) {
+      const childrenToInsert = children.map(child => ({
+        id_parent: id,
+        nik: !child?.nik || child?.nik === "" ? null : child?.nik,
+        name: child.name,
+        date_of_birth: child.date_of_birth,
+        gender: child.gender,
+      }));
+
+      const { error: childrenError } = await supabaseInstance
+        .from("childs_table")
+        .insert(childrenToInsert);
+
+      if (childrenError) {
+        await supabaseInstance.from("users_table").delete().eq("id", id);
+        return formatResponse({ req, res, code: 500, message: "Gagal menyimpan data anak.", error: childrenError });
+      }
+    }
+
     let message = "Registrasi berhasil.";
-    const constraint = error?.message || "";
-    if (constraint.includes("users_table_email_key")) {
-      message = "Email telah digunakan.";
-      code = 409;
-    } else if (constraint.includes("users_table_nik_key")) {
-      message = "NIK telah digunakan.";
-      code = 409;
-    }
 
-    const { id, email : emailUser } = data?.[0] || {};
-
-    if (code === 200 && id && children.length > 0) {
-      const childrenToInsert = children.map((child) => ({ id_parent: id, nik: child.nik, name: child.name, date_of_birth: child.date_of_birth, gender: child.gender }));
-      const { error: childrenError } = await supabaseInstance.from("childs_table").insert(childrenToInsert);
-
-      if (childrenError) message += " Tetapi gagal menyimpan data anak.";
-    }
-
-    if (code === 200 && id && useNodemailer) {
+    if (useNodemailer) {
       const type = EMAIL_TYPE["verification-email"].type;
-      const {token, expiredLabel, expiredDatetime} = generateToken({ id, type });
-      await supabaseInstance
+      const { token, expiredLabel, expiredDatetime } = generateToken({ id, type });
+
+      const { error: tokenError } = await supabaseInstance
         .from('tokens_table')
         .insert({ id_user: id, token, type, expires_at: expiredDatetime });
-      
-      const html = await getHtml("email-template.html", { userName: name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE["verification-email"] });
-      await sendEmail({ to : emailUser, subject : 'Verifikasi Email Anda', html })
-      message += " silahkan verifikasi email anda!";
+
+      if (!tokenError) {
+        const html = await getHtml("email-template.html", {
+          userName: name,
+          link: `verify-email?token=${token}`,
+          expiredLabel,
+          ...EMAIL_TYPE["verification-email"]
+        });
+
+        await sendEmail({ to: emailUser, subject: 'Verifikasi Email Anda', html });
+        message += " Silakan verifikasi email Anda!";
+      } else {
+        message += " Gagal kirim email verifikasi, silakan login dan kirim ulang email verfikasi.";
+      }
     }
 
-    return formatResponse({ req, res, code, error, message });
+    return formatResponse({ req, res, code: 200, message });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
@@ -72,46 +93,72 @@ export const loginController = async (req, res) => {
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
-      .select("id, email, password_hash, email_verification")
+      .select(`
+        id,
+        email,
+        password_hash,
+        email_verification,
+        nik,
+        role,
+        name,
+        fk_users_team_id:fk_users_team_id (
+          id,
+          team_name
+        ),
+        childs_table (
+          id,
+          nik,
+          name,
+          date_of_birth,
+          gender
+        )
+      `)
       .eq("email", email)
       .limit(1)
       .single();
 
-    let code = 200
-    let message = 'Login berhasil.'
-    let errorMessage = error
-    let data = null
+    let code = 200;
+    let message = 'Login berhasil.';
+    let errorMessage = error;
+    let data = null;
 
-    const validPassword = await comparePassword(password, user?.password_hash);
-    if (!validPassword) {
-      message = "Email atau password salah."
-      code = 401
+    const validPassword = await comparePassword(password, user.password_hash);
+    if (!validPassword || !user) {
+      message = "Email atau password salah.";
+      code = 401;
+      return formatResponse({ req, res, error: message, code, data, message });
     }
-    
-    if(!error && validPassword) {
-      const { token, expiredDatetime } = generateToken({ id: user.id, type: "login" });
-      
-      const { error: tokenInsertError } = await supabaseInstance
-        .from("tokens_table")
-        .insert({
-          id_user: user?.id,
-          token,
-          type: "login",
-          expires_at: expiredDatetime,
-        });
 
-      if(tokenInsertError) {
-        errorMessage = tokenInsertError
-        code = 500
-      } else {
-        data = {
-          token,
-          email_verification: user?.email_verification
+    const { token, expiredDatetime } = generateToken({ id: user.id, type: "login" });
+
+    const { error: tokenInsertError } = await supabaseInstance
+      .from("tokens_table")
+      .insert({
+        id_user: user.id,
+        token,
+        type: "login",
+        expires_at: expiredDatetime,
+      });
+
+    if (tokenInsertError) {
+      errorMessage = tokenInsertError;
+      code = 500;
+    } else {
+      data = {
+        token,
+        user: {
+          email: user.email,
+          nik: user.nik,
+          role: user.role,
+          name: user.name,
+          email_verification: user.email_verification,
+          childs: user.childs_table || [],
+          team: user?.fk_users_team_id?.team_name || null
         }
-      }
+      };
     }
-    
-    return formatResponse({ req, res, error : errorMessage, code, data, message });
+
+    return formatResponse({ req, res, error: errorMessage, code, data, message });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
