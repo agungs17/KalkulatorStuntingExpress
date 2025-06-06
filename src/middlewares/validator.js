@@ -9,29 +9,29 @@ export const validator = async (req, res, next) => {
   const { error } = partialSchema.validate(req.body, { abortEarly: false });
 
   if (error) {
-  const errors = {};
+    const errors = {};
 
-  let maxIndexes = {};
+    let maxIndexes = {};
 
-  error.details.forEach(err => {
-    const path = err.path;
+    error.details.forEach(err => {
+      const path = err.path;
 
-    if (path.length >= 3 && typeof path[1] === "number") {
-      const parent = path[0];
-      const index = path[1];
-      const field = path[2];
+      if (path.length >= 3 && typeof path[1] === "number") {
+        const parent = path[0];
+        const index = path[1];
+        const field = path[2];
 
-      maxIndexes[parent] = Math.max(maxIndexes[parent] || 0, index);
+        maxIndexes[parent] = Math.max(maxIndexes[parent] || 0, index);
 
-      if (!errors[parent]) {
-        errors[parent] = [];
-      }
+        if (!errors[parent]) {
+          errors[parent] = [];
+        }
 
-      if (!errors[parent][index]) {
-        errors[parent][index] = {};
-      }
+        if (!errors[parent][index]) {
+          errors[parent][index] = {};
+        }
 
-      errors[parent][index][`${field}_error`] = err.message;
+        errors[parent][index][`${field}_error`] = err.message;
 
       } else {
         const key = `${path[0]}`;
@@ -50,13 +50,13 @@ export const validator = async (req, res, next) => {
     }
 
     return formatResponse({
-        req,
-        res,
-        code: 400,
-        data: null,
-        message: "Terdapat kesalahan pada data yang dikirim",
-        error : { validator: errors }
-      });
+      req,
+      res,
+      code: 400,
+      data: null,
+      message: "Terdapat kesalahan pada data yang dikirim",
+      error : { validator: errors }
+    });
   }
 
   next();

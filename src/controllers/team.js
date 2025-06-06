@@ -24,7 +24,7 @@ export const createTeamController = async (req, res) => {
     } else if (user.id_team) {
       code = 400;
       message = "Kamu sudah memiliki tim. Hapus tim terlebih dahulu.";
-     } else if (user.role !== ROLE_TYPE.staff) {
+    } else if (user.role !== ROLE_TYPE.staff) {
       code = 401;
       message = "Hanya petugas kesehatan yang dapat membuat tim. Jika kamu petugas kesehatan ubah profilemu";
     } else {
@@ -58,38 +58,38 @@ export const createTeamController = async (req, res) => {
 };
 
 export const addTeamController = async (req, res) => {
-  const userId = req.userId; 
+  const userId = req.userId;
   const { email } = req.body;
 
   try {
     const { data: ownedTeam, error: teamErr } = await supabaseInstance
-      .from('teams_table')
-      .select('id, id_user')
-      .eq('id_user', userId)
+      .from("teams_table")
+      .select("id, id_user")
+      .eq("id_user", userId)
       .single();
 
-    if (teamErr || userId !== ownedTeam?.id_user) return formatResponse({ req, res, code: 403, message: 'Anda bukan owner tim mana pun—tidak bisa menambahkan anggota.', error : teamErr });
+    if (teamErr || userId !== ownedTeam?.id_user) return formatResponse({ req, res, code: 403, message: "Anda bukan owner tim mana pun—tidak bisa menambahkan anggota.", error : teamErr });
 
     const teamId = ownedTeam.id;
 
     const { data: targetUser, error: userErr } = await supabaseInstance
-      .from('users_table')
-      .select('id, id_team, email, email_verification')
-      .eq('email', email)
+      .from("users_table")
+      .select("id, id_team, email, email_verification")
+      .eq("email", email)
       .single();
 
-    if (userErr || !targetUser) return formatResponse({ req, res, code: 404, message: 'User tidak ditemukan.', error : targetUser });
-    if (targetUser.id === userId) return formatResponse({ req, res, code: 400, message: 'Anda tidak dapat menambahkan diri sendiri ke dalam tim.' });
+    if (userErr || !targetUser) return formatResponse({ req, res, code: 404, message: "User tidak ditemukan.", error : targetUser });
+    if (targetUser.id === userId) return formatResponse({ req, res, code: 400, message: "Anda tidak dapat menambahkan diri sendiri ke dalam tim." });
     if (targetUser.id_team !== null) return formatResponse({ req, res, code: 409, message: "User tersebut sudah tergabung dalam tim lain." });
     if (!targetUser.email_verification) return formatResponse({ req, res, code: 403, message: "User belum verifikasi email." });
     if (targetUser.role !== ROLE_TYPE.staff) return formatResponse({ req, res, code: 401, message: "User bukan petugas kesehatan" });
 
     const { error: updateErr } = await supabaseInstance
-      .from('users_table')
+      .from("users_table")
       .update({ id_team: teamId })
-      .eq('id', targetUser.id);
+      .eq("id", targetUser.id);
 
-    if (updateErr) return formatResponse({ req, res, code: 500, message: 'Gagal menambahkan user ke dalam tim.', error: updateErr });
+    if (updateErr) return formatResponse({ req, res, code: 500, message: "Gagal menambahkan user ke dalam tim.", error: updateErr });
 
     return formatResponse({ req, res, code: 200, message: "User berhasil ditambahkan ke tim.", data: null });
   } catch (err) {
@@ -207,9 +207,9 @@ export const leaveTeamController = async (req, res) => {
       .eq("email", email)
       .single();
 
-    if (targetUserError || !targetUser) return formatResponse({ req, res, code: 404, error: teamError, message: `User tidak ditemukan.` });
+    if (targetUserError || !targetUser) return formatResponse({ req, res, code: 404, error: teamError, message: "User tidak ditemukan." });
 
-    if (targetUser.id_team !== user.id_team) return formatResponse({ req, res, code: 403, message: `User bukan anggota tim yang sama.` });
+    if (targetUser.id_team !== user.id_team) return formatResponse({ req, res, code: 403, message: "User bukan anggota tim yang sama." });
 
     if (isOwner) {
       if (targetUser.id === userId) return formatResponse({ req, res, code: 403, message: "Owner tidak bisa keluar dari tim." });
@@ -221,7 +221,7 @@ export const leaveTeamController = async (req, res) => {
 
       if (updateError) return formatResponse({ req, res, code: 500, error: updateError, message: "Gagal menghapus anggota dari tim." });
 
-      return formatResponse({ req, res, code: 200, data: null, message: `Berhasil mengeluarkan dari tim.` });
+      return formatResponse({ req, res, code: 200, data: null, message: "Berhasil mengeluarkan dari tim." });
     } else {
       if (targetUser.id !== userId) return formatResponse({ req, res, code: 403, message: "Tidak boleh mengeluarkan anggota lain." });
 

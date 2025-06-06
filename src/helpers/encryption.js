@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import jwt from 'jsonwebtoken';
+import jwt from "jsonwebtoken";
 import config from "../configurations";
 import { TIME_UNIT_MAP_TYPE } from "../constants/type";
 import dayjs from "./dayjsLocale";
@@ -9,23 +9,23 @@ const expiredUnit = config.jwt.jwtUnitExpired;
 const typeExpired = config.jwt.jwtLabelExpired;
 
 export const hashPassword = async(plainPassword) => {
-    if(!plainPassword) return null
-    const salt = await bcrypt.genSalt(10);
-    const hash = await bcrypt.hash(plainPassword, salt);
-    return hash
-}
+  if(!plainPassword) return null;
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(plainPassword, salt);
+  return hash;
+};
 
 export const comparePassword = async(plainPassword, hashPassword) => {
-    if(!plainPassword || !hashPassword) return false
+  if(!plainPassword || !hashPassword) return false;
 
-    return await bcrypt.compare(plainPassword, hashPassword);
-}
+  return await bcrypt.compare(plainPassword, hashPassword);
+};
 
 export const generateToken = (payload) => {
-  if (!JWT_SECRET) throw new Error('❌ Tambahkan JWT_SECRET di .env');
-  if(!payload) return {}
+  if (!JWT_SECRET) throw new Error("❌ Tambahkan JWT_SECRET di .env");
+  if(!payload) return {};
 
-  const expired = dayjs().add(expiredUnit, typeExpired)
+  const expired = dayjs().add(expiredUnit, typeExpired);
 
   const expiredUnix = expired.unix();
   const expiredDatetime = expired.toDate();

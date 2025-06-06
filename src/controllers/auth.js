@@ -8,7 +8,7 @@ import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
 
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
-  const { email, password, nik, name, children = [], role = 'user' } = req.body;
+  const { email, password, nik, name, children = [], role = "user" } = req.body;
 
   if (role === ROLE_TYPE.admin) {
     return formatResponse({ req, res, code: 401, message: `Role ${role} tidak diperbolehkan.` });
@@ -31,7 +31,7 @@ export const registerController = async (req, res) => {
       .single();
 
     if (userError || !userData) {
-      if (userError?.code === '23505') return formatResponse({ req, res, code: 409, message: "Email atau NIK sudah digunakan." });
+      if (userError?.code === "23505") return formatResponse({ req, res, code: 409, message: "Email atau NIK sudah digunakan." });
       return formatResponse({ req, res, code: 500, message: "Gagal membuat akun.", error: userError });
     }
 
@@ -63,7 +63,7 @@ export const registerController = async (req, res) => {
       const { token, expiredLabel, expiredDatetime } = generateToken({ id, type });
 
       const { error: tokenError } = await supabaseInstance
-        .from('tokens_table')
+        .from("tokens_table")
         .insert({ id_user: id, token, type, expires_at: expiredDatetime });
 
       if (!tokenError) {
@@ -74,7 +74,7 @@ export const registerController = async (req, res) => {
           ...EMAIL_TYPE.verificationEmail
         });
 
-        await sendEmail({ to: emailUser, subject: 'Verifikasi Email Anda', html });
+        await sendEmail({ to: emailUser, subject: "Verifikasi Email Anda", html });
         message += " Silakan verifikasi email Anda!";
       } else {
         message += " Gagal kirim email verifikasi, silakan login dan kirim ulang email verfikasi.";
@@ -94,13 +94,13 @@ export const loginController = async (req, res) => {
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
-      .select(`id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, team_name), childs_table(id, nik, name, date_of_birth, gender)`)
+      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, team_name), childs_table(id, nik, name, date_of_birth, gender)")
       .eq("email", email)
       .limit(1)
       .single();
 
     let code = 200;
-    let message = 'Login berhasil.';
+    let message = "Login berhasil.";
     let errorMessage = error;
     let data = null;
 
@@ -149,13 +149,13 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = async (req, res) => {
   const { token: oldToken } = req.body;
   const type = JWT_TYPE.login;
-  
+
   const decoded = decodeToken(oldToken);
 
   if (decoded !== "Token expired")  return formatResponse({ req, res, code: 400, message: "Token belum expired, tidak bisa refresh.", error: "Token not expired" });
 
   try {
-    
+
     const { data: tokenData, error } = await supabaseInstance
       .from("tokens_table")
       .select("id, token, id_user")

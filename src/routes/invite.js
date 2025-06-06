@@ -6,7 +6,7 @@ import { validator } from "../middlewares/validator";
 
 const invite = express.Router();
 
-const limitInvite = rateLimiter({ minute: 3, request: 1 })
+const limitInvite = rateLimiter({ minute: 3, request: 1 });
 
 invite.get("/resend-email-verfication", authenticateToken, limitInvite, resendEmailVerificationController);
 invite.post("/send-email-forgot-password", validator, limitInvite, sendEmailForgotPassword);

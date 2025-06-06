@@ -4,7 +4,7 @@ import { JWT_TYPE } from "../constants/type";
 
 export const verifyEmailController = async(req, res) => {
   const userId = req?.userId;
-  
+
   try {
     const { data, error } = await supabaseInstance
       .from("tokens_table")
@@ -15,7 +15,7 @@ export const verifyEmailController = async(req, res) => {
       .limit(1)
       .single();
 
-      if (error || !data) return res.status(400).send("Link tidak valid.");
+    if (error || !data) return res.status(400).send("Link tidak valid.");
 
     const { error: updateError } = await supabaseInstance
       .from("users_table")
@@ -35,7 +35,7 @@ export const verifyEmailController = async(req, res) => {
   } catch (err) {
     return res.status(500).send("Sepertinya ada yang tidak beres.");
   }
-}
+};
 
 export const formPasswordController = async(req, res) => {
   const userId = req?.userId;
@@ -50,13 +50,13 @@ export const formPasswordController = async(req, res) => {
       .limit(1)
       .single();
 
-      if (error || !data) return res.status(400).send("Link tidak valid.");
+    if (error || !data) return res.status(400).send("Link tidak valid.");
 
-      const html = await getHtml('email-change-password.html')
+    const html = await getHtml("email-change-password.html");
 
-      return res .status(200).send(html);
+    return res .status(200).send(html);
 
   } catch (err) {
     return res.status(500).send("Sepertinya ada yang tidak beres.");
   }
-}
+};
