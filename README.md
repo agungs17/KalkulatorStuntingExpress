@@ -25,9 +25,13 @@ BASE_URL=
 # supabase (https://supabase.com)
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
+SUPABASE_BULK_TOKEN=
 
 # JWT
 JWT_SECRET=
+JWT_IGNORE_EXPIRATION=false
+JWT_UNIT_EXPIRED=12
+JWT_LABEL_EXPIRED=hours
 
 # nodemailer (if use email sender set BASE_URL)
 EMAIL_SERVICE=gmail

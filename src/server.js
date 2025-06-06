@@ -1,6 +1,7 @@
 import express from "express";
 import config from "./configurations";
 import formatResponse from "./helpers/formatResponse";
+import { bulkController } from "./controllers/bulk";
 
 import auth from "./routes/auth";
 import landing from "./routes/landing";
@@ -26,6 +27,8 @@ apiRouter.use("/user", user);
 apiRouter.use("/team", team);
 // invite
 apiRouter.use("/invite", invite);
+// bulk
+apiRouter.use("/bulk", bulkController);
 
 // mount apiRouter /api
 app.use("/api", apiRouter);

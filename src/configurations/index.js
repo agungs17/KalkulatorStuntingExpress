@@ -8,6 +8,7 @@ const config = Object.freeze({
   supabase: {
     url: process.env.SUPABASE_URL,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    bulkToken: process.env.SUPABASE_BULK_TOKEN,
     useSupabase : process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
   },
   nodemailer : {

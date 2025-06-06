@@ -1,9 +1,8 @@
-import fs from "fs/promises";
-import path from "path";
 import config from "../configurations";
 import dayjs from "./dayjsLocale";
 import juice from "juice";
 import { minify } from "html-minifier-terser";
+import { getFilePublic } from "./path";
 
 const minifyHtml = (html) => {
   const inlinedHtml = juice(html);
@@ -26,9 +25,7 @@ const getHtml = async (nameFile, propsHtml = {}) => {
   const { userName = "User", header = "Your title", buttonName = "Button name", link = "", expiredLabel = "" } = propsHtml;
   const date = dayjs();
 
-  const filePath = path.join(process.cwd(), "public", "html", nameFile);
-
-  let html = await fs.readFile(filePath, "utf-8");
+  let html = await getFilePublic("html", nameFile);
 
   html = html.replace(/{{userName}}/g, userName);
   html = html.replace(/{{header}}/g, header);
