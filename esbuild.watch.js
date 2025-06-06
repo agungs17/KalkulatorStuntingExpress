@@ -8,7 +8,7 @@ const esbuild = require("esbuild");
     target: "node18",
     outdir: "api",
     format: "cjs",
-    sourcemap: 'external',
+    sourcemap: true,
     logLevel: "info",
     minify: false,
     minifyWhitespace : false,

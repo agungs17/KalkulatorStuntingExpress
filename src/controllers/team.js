@@ -24,7 +24,7 @@ export const createTeamController = async (req, res) => {
     } else if (user.id_team) {
       code = 400;
       message = "Kamu sudah memiliki tim. Hapus tim terlebih dahulu.";
-    } else if (user.role !== ROLE_TYPE.staff) {
+     } else if (user.role !== ROLE_TYPE.staff) {
       code = 401;
       message = "Hanya petugas kesehatan yang dapat membuat tim. Jika kamu petugas kesehatan ubah profilemu";
     } else {
@@ -82,7 +82,7 @@ export const addTeamController = async (req, res) => {
     if (targetUser.id === userId) return formatResponse({ req, res, code: 400, message: 'Anda tidak dapat menambahkan diri sendiri ke dalam tim.' });
     if (targetUser.id_team !== null) return formatResponse({ req, res, code: 409, message: "User tersebut sudah tergabung dalam tim lain." });
     if (!targetUser.email_verification) return formatResponse({ req, res, code: 403, message: "User belum verifikasi email." });
-    if (user.role !== ROLE_TYPE.staff) return formatResponse({ req, res, code: 401, message: "User bukan petugas kesehatan" });
+    if (targetUser.role !== ROLE_TYPE.staff) return formatResponse({ req, res, code: 401, message: "User bukan petugas kesehatan" });
 
     const { error: updateErr } = await supabaseInstance
       .from('users_table')

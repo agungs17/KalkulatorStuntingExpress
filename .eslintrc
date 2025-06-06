@@ -1,0 +1,21 @@
+{
+ "root": true,
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "ignorePatterns": ["api/", "node_modules/"],
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module"
+  },
+  "rules": {
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "no-trailing-spaces": "error",
+    "no-unused-vars": "warn", 
+    "indent": ["error", 2],
+    "linebreak-style": ["error", "unix"]
+  }
+}
