@@ -1,23 +1,16 @@
 import supabaseInstance from "../services/supabaseInstance";
-import { decodeToken } from "../helpers/encryption";
 import { getHtml } from "../helpers/html";
-import { EMAIL_TYPE } from "../constants/email";
+import { JWT_TYPE } from "../constants/type";
 
 export const verifyEmailController = async(req, res) => {
-  const { token } = req.query;
-
-  const type = EMAIL_TYPE["verification-email"].type
-  const decoded = decodeToken(token)
-  if(decoded?.type !== type || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
-
+  const userId = req?.userId;
+  
   try {
-    const userId = decoded?.id;
-
     const { data, error } = await supabaseInstance
       .from("tokens_table")
       .select("token")
       .eq("id_user", userId)
-      .eq("type", type)
+      .eq("type", JWT_TYPE.verificationEmail)
       .order("created_at", { ascending: false })
       .limit(1)
       .single();
@@ -35,7 +28,7 @@ export const verifyEmailController = async(req, res) => {
         .from("tokens_table")
         .delete()
         .eq("id_user", userId)
-        .eq("type", type);
+        .eq("type", JWT_TYPE.verificationEmail);
     }
 
     return res.status(200).send("Email berhasil diverifikasi. Terima kasih!");
@@ -45,20 +38,14 @@ export const verifyEmailController = async(req, res) => {
 }
 
 export const formPasswordController = async(req, res) => {
-  const { token } = req.query;
-
-  const type = EMAIL_TYPE['forgot-password-email'].type
-  const decoded = decodeToken(token)
-  if(decoded?.type !== type || decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return res.status(401).send('Token tidak valid atau sudah kedaluwarsa.');
+  const userId = req?.userId;
 
   try {
-    const userId = decoded?.id;
-
     const { data, error } = await supabaseInstance
       .from("tokens_table")
       .select("token")
       .eq("id_user", userId)
-      .eq("type", type)
+      .eq("type", JWT_TYPE.forgotPasswordEmail)
       .order("created_at", { ascending: false })
       .limit(1)
       .single();

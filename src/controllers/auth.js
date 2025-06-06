@@ -4,8 +4,7 @@ import { comparePassword, decodeToken, generateToken, hashPassword } from "../he
 import config from "../configurations";
 import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
-import { EMAIL_TYPE } from "../constants/email";
-import { ROLE_TYPE } from "../constants/type";
+import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
 
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
@@ -60,7 +59,7 @@ export const registerController = async (req, res) => {
     let message = "Registrasi berhasil.";
 
     if (useNodemailer) {
-      const type = EMAIL_TYPE["verification-email"].type;
+      const type = JWT_TYPE.verificationEmail;
       const { token, expiredLabel, expiredDatetime } = generateToken({ id, type });
 
       const { error: tokenError } = await supabaseInstance
@@ -72,7 +71,7 @@ export const registerController = async (req, res) => {
           userName: name,
           link: `verify-email?token=${token}`,
           expiredLabel,
-          ...EMAIL_TYPE["verification-email"]
+          ...EMAIL_TYPE.verificationEmail
         });
 
         await sendEmail({ to: emailUser, subject: 'Verifikasi Email Anda', html });
@@ -90,6 +89,8 @@ export const registerController = async (req, res) => {
 
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
+  const type = JWT_TYPE.login;
+
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
@@ -122,21 +123,21 @@ export const loginController = async (req, res) => {
     let errorMessage = error;
     let data = null;
 
-    const validPassword = await comparePassword(password, user.password_hash);
+    const validPassword = await comparePassword(password, user?.password_hash);
     if (!validPassword || !user) {
       message = "Email atau password salah.";
       code = 401;
       return formatResponse({ req, res, error: message, code, data, message });
     }
 
-    const { token, expiredDatetime } = generateToken({ id: user.id, type: "login" });
+    const { token, expiredDatetime } = generateToken({ id: user.id, type });
 
     const { error: tokenInsertError } = await supabaseInstance
       .from("tokens_table")
       .insert({
         id_user: user.id,
         token,
-        type: "login",
+        type,
         expires_at: expiredDatetime,
       });
 
@@ -165,31 +166,31 @@ export const loginController = async (req, res) => {
 };
 
 export const refreshTokenController = async (req, res) => {
-  const {token : oldToken} = req.body;
+  const { token: oldToken } = req.body;
+  const type = JWT_TYPE.login;
+  
+  const decoded = decodeToken(oldToken);
 
-  const decodedOldToken = decodeToken(oldToken);
-  if ((decodedOldToken === "Token invalid" || decodedOldToken === "Token empty" || decodedOldToken?.type !== "login") && decodedOldToken !== 'Token expired') return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : decodedOldToken });
+  if (decoded !== "Token expired")  return formatResponse({ req, res, code: 400, message: "Token belum expired, tidak bisa refresh.", error: "Token not expired" });
 
   try {
+    
     const { data: tokenData, error } = await supabaseInstance
       .from("tokens_table")
       .select("id, token, id_user")
       .eq("token", oldToken)
-      .eq("type", "login")
+      .eq("type", type)
       .limit(1)
       .single();
 
-    const decoded = decodeToken(tokenData?.token);
-    if (decoded !== "Token expired") return formatResponse({ req, res, code: 400, message: "Token belum expired, tidak perlu refresh.", error : "Token not expired" });
-    if (error || !tokenData) return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau sudah tidak berlaku.", error : "Token not found" });
+    if (error || !tokenData) return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau sudah tidak berlaku.", error: "Token not found" });
 
-    const { token: newToken, expiredDatetime } = generateToken({ id: tokenData.id_user, type: "login" });
+    const { token: newToken, expiredDatetime } = generateToken({ id: tokenData.id_user, type });
 
     await supabaseInstance
       .from("tokens_table")
-      .eq("token", oldToken)
-      .eq("type", "login")
-      .update({ token: newToken, expires_at: expiredDatetime });
+      .update({ token: newToken, expires_at: expiredDatetime })
+      .eq("id", tokenData.id);
 
     return formatResponse({ req, res, code: 200, message: "Token berhasil diperbarui.", data: { token: newToken } });
   } catch (err) {

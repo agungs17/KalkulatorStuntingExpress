@@ -3,7 +3,7 @@ import formatResponse from "../helpers/formatResponse";
 import { generateToken } from "../helpers/encryption";
 import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
-import { EMAIL_TYPE } from "../constants/email";
+import { EMAIL_TYPE, JWT_TYPE } from "../constants/type";
 
 export const resendEmailVerificationController = async (req, res) => {
   const userId = req.userId;
@@ -30,7 +30,7 @@ export const resendEmailVerificationController = async (req, res) => {
     }
 
     if(!error && user && !user.email_verification) {
-      const type = EMAIL_TYPE["verification-email"].type;
+      const type = JWT_TYPE.verificationEmail;
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
       await supabaseInstance
@@ -48,7 +48,7 @@ export const resendEmailVerificationController = async (req, res) => {
         expires_at: expiredDatetime,
       });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE["verification-email"] });
+      const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verificationEmail });
       await sendEmail({ to: user.email, subject: "Verifikasi Email Anda", html });
     }
     
@@ -79,7 +79,7 @@ export const sendEmailForgotPassword = async (req, res) => {
     }
 
     if(!error && user) {
-      const type = EMAIL_TYPE["forgot-password-email"].type;
+      const type = JWT_TYPE.forgotPasswordEmail;
       const userId = user?.id
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
 
@@ -98,7 +98,7 @@ export const sendEmailForgotPassword = async (req, res) => {
         expires_at: expiredDatetime,
       });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `form-password?token=${token}`, expiredLabel, ...EMAIL_TYPE["forgot-password-email"] });
+      const html = await getHtml("email-template.html", { userName: user.name, link: `form-password?token=${token}`, expiredLabel, ...EMAIL_TYPE.forgotPasswordEmail });
       await sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
     }
 

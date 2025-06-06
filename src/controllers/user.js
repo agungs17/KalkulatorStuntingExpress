@@ -1,29 +1,20 @@
 import supabaseInstance from "../services/supabaseInstance";
-import { comparePassword, decodeToken, hashPassword } from "../helpers/encryption";
-import { EMAIL_TYPE } from "../constants/email";
+import { comparePassword, hashPassword } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
+import { JWT_TYPE } from "../constants/type";
 
 export const changePasswordController = async(req, res) => {
-  const authHeader = req.headers.authorization || "";
-  const token = authHeader.replace("Bearer ", "");
-  const { password } = req.body
-
-  const typeForgotPasswordEmail = EMAIL_TYPE["forgot-password-email"].type
-  const typeLogin = "login"
-  const allowedTypes = [typeForgotPasswordEmail, typeLogin];
-
-  const decoded = decodeToken(token);
-  if (decoded === 'Token expired' || decoded === "Token invalid" || decoded === "Token empty") return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : decoded });
-  if (!allowedTypes.includes(decoded?.type)) return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error : "Token type invalid" });
-
-  const userId = decoded?.id;
+  const tokenId = req.tokenId;
+  const userId = req.userId;
+  const tokenType = req.tokenType;
+  
+  const { password } = req.body;
 
   try {
     const { data, error } = await supabaseInstance
       .from("tokens_table")
       .select("token, users_table(id, password_hash)")
-      .eq("id_user", userId)
-      .eq("type", decoded?.type)
+      .eq("id", tokenId)
       .order("created_at", { ascending: false })
       .limit(1)
       .single()
@@ -39,21 +30,21 @@ export const changePasswordController = async(req, res) => {
 
     if (updateError) return formatResponse({ req, res, code: 500, message: "Gagal mengubah password.", error: updateError });
 
-    if (decoded?.type === typeForgotPasswordEmail) {
+    if (tokenType === JWT_TYPE.forgotPasswordEmail) {
       await supabaseInstance
         .from("tokens_table")
         .delete()
         .eq("id_user", userId)
-        .in("type", [typeForgotPasswordEmail, typeLogin]);
+        .in("type", [JWT_TYPE.forgotPasswordEmail, JWT_TYPE.login]);
     }
     
-    if (decoded?.type === typeLogin) {
+    if (tokenType === JWT_TYPE.login) {
      await supabaseInstance
       .from("tokens_table")
       .delete()
-      .filter("id_user", "eq", userId)
-      .filter("type", "eq", typeLogin)
-      .filter("token", "neq", token);
+      .eq("id_user", userId)
+      .eq("type", JWT_TYPE.login)
+      .not("id", "eq", tokenId);
     }
 
     return formatResponse({ req, res, code: 200, message: "Password berhasil diubah.", data: null });

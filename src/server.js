@@ -15,7 +15,7 @@ app.use(express.json());
 
 if (config.nodeEnv === 'dev') app.get("/", (_, res) => res.redirect("/api"));
 
-apiRouter.get("/", (req, res) => formatResponse({ req, res, message: "API is running properly!", }));
+apiRouter.get("/", (req, res) => formatResponse({ req, res, message: "API is running properly!" }));
 
 // with /api (apiRouter.use)
 // auth
