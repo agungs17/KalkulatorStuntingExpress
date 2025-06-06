@@ -4,7 +4,7 @@
   "description": "",
   "main": "api/index.js",
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "husky",
     "start": "node api/index.js",
     "build": "rm -rf api && npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
     "lint": "eslint index.js src/",
