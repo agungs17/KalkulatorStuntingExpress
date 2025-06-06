@@ -3,6 +3,42 @@ import { comparePassword, hashPassword } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
 import { JWT_TYPE } from "../constants/type";
 
+export const profileController = async (req, res) => {
+  const userId = req.userId;
+
+  try {
+     const { data: user, error } = await supabaseInstance
+      .from("users_table")
+      .select(`id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, team_name), childs_table(id, nik, name, date_of_birth, gender)`)
+      .eq("id", userId)
+      .limit(1)
+      .single();
+
+    let code = error ? 500 : 200;
+    let message = 'Profile berhasil diambil.';
+    let errorMessage = error;
+    let data = null;
+
+    if (user && !error) {
+      data = {
+          user: {
+            email: user.email,
+            nik: user.nik,
+            role: user.role,
+            name: user.name,
+            email_verification: user.email_verification,
+            childs: user.childs_table || [],
+            team: user?.fk_users_team_id?.team_name || null
+          }
+      };
+    }
+
+    return formatResponse({ req, res, error: errorMessage, code, data, message });
+  } catch (error) {
+    return formatResponse({ req, res, code: 500, error: String(error) });
+  }
+}
+
 export const changePasswordController = async(req, res) => {
   const tokenId = req.tokenId;
   const userId = req.userId;
