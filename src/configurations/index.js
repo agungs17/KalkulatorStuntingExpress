@@ -1,10 +1,12 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+const defaultPort = 3000;
+
 const config = Object.freeze({
-  port: process.env.PORT || 3000,
+  port: process.env.PORT || defaultPort,
   nodeEnv: process.env.NODE_ENV || "dev",
-  baseUrl : process.env.NODE_ENV === "dev" ? `http://localhost:${process.env.PORT}` : process.env.BASE_URL,
+  baseUrl : process.env.NODE_ENV === "dev" ? `http://localhost:${process.env.PORT || defaultPort}` : process.env.BASE_URL,
   supabase: {
     url: process.env.SUPABASE_URL,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
