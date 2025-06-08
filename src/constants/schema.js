@@ -27,6 +27,7 @@ const pattern = {
 };
 
 const childSchema = Joi.object({
+  id: Joi.string().optional(),
   name : pattern.name,
   nik: pattern.nik.optional().allow(""),
   date_of_birth: pattern.date,
@@ -43,6 +44,7 @@ const defaultSchema = Joi.object({
     "any.required": "Email wajib diisi",
     "string.empty": "Email tidak boleh kosong",
   }),
+  old_password: pattern.password,
   password: pattern.password,
   confirmation_password : Joi.any().valid(Joi.ref("password")).required().messages({
     "any.only": "Konfirmasi password harus sama dengan password",

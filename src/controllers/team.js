@@ -74,7 +74,7 @@ export const addTeamController = async (req, res) => {
 
     const { data: targetUser, error: userErr } = await supabaseInstance
       .from("users_table")
-      .select("id, id_team, email, email_verification")
+      .select("id, role, id_team, email, email_verification")
       .eq("email", email)
       .single();
 
@@ -97,86 +97,44 @@ export const addTeamController = async (req, res) => {
   }
 };
 
-
-export const getTeamController = async (req, res) => {
+export const changeTeamLeaderController = async (req, res) => {
   const userId = req.userId;
+  const { email } = req.body;
 
   try {
-    const { data: user, error: userError } = await supabaseInstance
+    const { data: requester, error } = await supabaseInstance
       .from("users_table")
-      .select("id_team")
+      .select("id, id_team, fk_users_team_id(id, id_user, team_name)")
       .eq("id", userId)
       .single();
 
-    if (userError || !user || !user.id_team) {
-      return formatResponse({
-        req,
-        res,
-        code: 200,
-        message: "User belum bergabung dalam tim.",
-        data: {
-          team_name: null,
-          teams: [],
-          is_owner: false
-        }
-      });
-    }
+    if (error || !requester.fk_users_team_id) return formatResponse({ req, res, code: 400, message: "Kamu tidak tergabung dalam tim manapun." });
 
-    const { data: teamData, error: teamError } = await supabaseInstance
-      .from("teams_table")
-      .select("id, team_name, id_user")
-      .eq("id", user.id_team)
+    const team = requester.fk_users_team_id;
+
+    if (team.id_user !== userId) return formatResponse({ req, res, code: 403, message: "Hanya ketua tim yang bisa mengganti ketua." });
+
+    const { data: targetUser, error: targetError } = await supabaseInstance
+      .from("users_table")
+      .select("id, name, email, id_team")
+      .eq("email", email)
       .single();
 
-    if (teamError || !teamData) {
-      return formatResponse({
-        req,
-        res,
-        code: 404,
-        message: "Tim tidak ditemukan.",
-        error: teamError
-      });
-    }
+    if (targetError || targetUser.id_team !== team.id) return formatResponse({ req, res, code: 404, message: "User tidak ditemukan di dalam tim." });
+    if(requester.id === targetUser.id) return formatResponse({ req, res, code: 400, message: "Kamu sudah menjadi ketua tim." });
 
-    const is_owner = teamData.id_user === userId;
+    const { error: updateError } = await supabaseInstance
+      .from("teams_table")
+      .update({ id_user: targetUser.id })
+      .eq("id", team.id);
 
-    const { data: teamMembers, error: membersError } = await supabaseInstance
-      .from("users_table")
-      .select("email, id")
-      .eq("id_team", teamData.id);
+    if (updateError) return formatResponse({ req, res, code: 500, message: "Gagal mengganti ketua tim." });
 
-    if (membersError) {
-      return formatResponse({
-        req,
-        res,
-        code: 500,
-        message: "Gagal mengambil data anggota tim.",
-        error: membersError
-      });
-    }
-
-    const teams = teamMembers.map(member => ({
-      email: member.email,
-      position: member.id === teamData.id_user ? "Ketua" : "Anggota"
-    }));
-
-    return formatResponse({
-      req,
-      res,
-      code: 200,
-      message: "Berhasil mengambil data tim.",
-      data: {
-        team_name: teamData.team_name,
-        teams,
-        is_owner
-      }
-    });
-
+    return formatResponse({ req, res, code: 200, message: `Berhasil menjadikan ${targetUser.name} sebagai ketua tim.` });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
 };
-
 
 export const leaveTeamController = async (req, res) => {
   const userId = req.userId;

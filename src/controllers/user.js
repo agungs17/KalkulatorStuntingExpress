@@ -1,7 +1,7 @@
 import supabaseInstance from "../services/supabaseInstance";
 import { comparePassword, hashPassword } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
-import { JWT_TYPE } from "../constants/type";
+import { JWT_TYPE, ROLE_TYPE } from "../constants/type";
 
 export const profileController = async (req, res) => {
   const userId = req.userId;
@@ -9,7 +9,7 @@ export const profileController = async (req, res) => {
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
-      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, team_name), childs_table(id, nik, name, date_of_birth, gender)")
+      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, id_user, team_name), childs_table(id, nik, name, date_of_birth, gender)")
       .eq("id", userId)
       .limit(1)
       .single();
@@ -18,6 +18,43 @@ export const profileController = async (req, res) => {
     let message = "Profile berhasil diambil.";
     let errorMessage = error;
     let data = null;
+
+    let teamResult = {
+      team_name: null,
+      teams: [],
+      is_owner: false,
+    };
+
+    if (user.fk_users_team_id?.id) {
+      const { data: teamMembers = [] } = await supabaseInstance
+        .from("users_table")
+        .select("id, id_team, email, name")
+        .eq("id_team", user.fk_users_team_id.id);
+
+      const membersWithPosition = teamMembers.map((member) => {
+        const isOwner = member.id === user.fk_users_team_id.id_user;
+        const isCurrentUser = member.id === user.id;
+        return {
+          email: member.email,
+          name: member.name,
+          position: isOwner ? "Ketua" : "Anggota",
+          isCurrentUser,
+          isOwner,
+        };
+      }).sort((a, b) => {
+        if (a.isOwner) return -1;
+        if (b.isOwner) return 1;
+        if (a.isCurrentUser) return -1;
+        if (b.isCurrentUser) return 1;
+        return 0;
+      });
+
+      teamResult = {
+        team_name: user.fk_users_team_id.team_name,
+        teams: membersWithPosition.map(({ email, name, position }) => ({ email, name, position })),
+        is_owner: user.fk_users_team_id.id_user === user.id,
+      };
+    }
 
     if (user && !error) {
       data = {
@@ -28,7 +65,7 @@ export const profileController = async (req, res) => {
           name: user.name,
           email_verification: user.email_verification,
           childs: user.childs_table || [],
-          team: user?.fk_users_team_id?.team_name || null
+          team: teamResult
         }
       };
     }
@@ -39,12 +76,32 @@ export const profileController = async (req, res) => {
   }
 };
 
+export const editProfileController = async (req, res) => {
+  const userId = req.userId;
+  const { nik, name, role : roleBody } = req.body;
+
+  const role = roleBody.toLowerCase();
+  if (role === ROLE_TYPE.admin) return formatResponse({ req, res, code: 401, message: `Role ${role} tidak diperbolehkan.` });
+
+  try {
+    const { error: updateError } = await supabaseInstance
+      .from("users_table")
+      .update({ nik, name, role })
+      .eq("id", userId);
+
+    if (updateError) return formatResponse({ req, res, code: 500, message: "Gagal edit profile.", error: updateError });
+    else return formatResponse({ req, res, code: 200, message: "Profile berhasil diubah.", data: null });
+  } catch (err) {
+    return formatResponse({ req, res, code: 500, error: String(err) });
+  }
+};
+
 export const changePasswordController = async(req, res) => {
   const tokenId = req.tokenId;
   const userId = req.userId;
   const tokenType = req.tokenType;
 
-  const { password } = req.body;
+  const { old_password, password } = req.body;
 
   try {
     const { data, error } = await supabaseInstance
@@ -56,6 +113,12 @@ export const changePasswordController = async(req, res) => {
       .single();
 
     if(error) return formatResponse({ req, res, code: 500, message: "Gagal mengubah password.", error });
+
+    if (tokenType === JWT_TYPE.login) {
+      const cOldPassword = await comparePassword(old_password, data?.users_table?.password_hash);
+      if (!cOldPassword) return formatResponse({ req, res, code: 400, message: "Password lama salah." });
+    }
+
     const cPassword = await comparePassword(password, data?.users_table?.password_hash);
     if(cPassword) return formatResponse({ req, res, code: 400, message: "Password baru tidak boleh sama dengan password sebelumnya." });
 

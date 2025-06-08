@@ -8,11 +8,11 @@ import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
 
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
-  const { email, password, nik, name, children = [], role = "user" } = req.body;
+  const { email, password, nik, name, children = [], role : roleBody = "user" } = req.body;
 
-  if (role === ROLE_TYPE.admin) {
-    return formatResponse({ req, res, code: 401, message: `Role ${role} tidak diperbolehkan.` });
-  }
+  const role = roleBody.toLowerCase();
+
+  if (role === ROLE_TYPE.admin) return formatResponse({ req, res, code: 401, message: `Role ${role} tidak diperbolehkan.` });
 
   try {
     const password_hash = await hashPassword(password);
@@ -38,13 +38,10 @@ export const registerController = async (req, res) => {
     const { id, email: emailUser } = userData;
 
     if (children.length > 0) {
-      const childrenToInsert = children.map(child => ({
-        id_parent: id,
-        nik: !child?.nik || child?.nik === "" ? null : child?.nik,
-        name: child.name,
-        date_of_birth: child.date_of_birth,
-        gender: child.gender,
-      }));
+      const childrenToInsert = children.map(child => {
+        const nikValue = !child?.nik || child?.nik === "" ? null : child.nik;
+        return { id_parent: id, nik: nikValue, name: child.name, date_of_birth: child.date_of_birth, gender: child.gender, };
+      });
 
       const { error: childrenError } = await supabaseInstance
         .from("childs_table")
@@ -94,7 +91,7 @@ export const loginController = async (req, res) => {
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
-      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, team_name), childs_table(id, nik, name, date_of_birth, gender)")
+      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, id_user, team_name), childs_table(id, nik, name, date_of_birth, gender)")
       .eq("email", email)
       .limit(1)
       .single();
@@ -122,6 +119,43 @@ export const loginController = async (req, res) => {
         expires_at: expiredDatetime,
       });
 
+    let teamResult = {
+      team_name: null,
+      teams: [],
+      is_owner: false,
+    };
+
+    if (user.fk_users_team_id?.id) {
+      const { data: teamMembers = [] } = await supabaseInstance
+        .from("users_table")
+        .select("id, id_team, email, name")
+        .eq("id_team", user.fk_users_team_id.id);
+
+      const membersWithPosition = teamMembers.map((member) => {
+        const isOwner = member.id === user.fk_users_team_id.id_user;
+        const isCurrentUser = member.id === user.id;
+        return {
+          email: member.email,
+          name: member.name,
+          position: isOwner ? "Ketua" : "Anggota",
+          isCurrentUser,
+          isOwner,
+        };
+      }).sort((a, b) => {
+        if (a.isOwner) return -1;
+        if (b.isOwner) return 1;
+        if (a.isCurrentUser) return -1;
+        if (b.isCurrentUser) return 1;
+        return 0;
+      });
+
+      teamResult = {
+        team_name: user.fk_users_team_id.team_name,
+        teams: membersWithPosition.map(({ email, name, position }) => ({ email, name, position })),
+        is_owner: user.fk_users_team_id.id_user === user.id,
+      };
+    }
+
     if (tokenInsertError) {
       errorMessage = tokenInsertError;
       code = 500;
@@ -135,7 +169,7 @@ export const loginController = async (req, res) => {
           name: user.name,
           email_verification: user.email_verification,
           childs: user.childs_table || [],
-          team: user?.fk_users_team_id?.team_name || null
+          teams: teamResult
         }
       };
     }

@@ -4,9 +4,9 @@ import config from "../configurations";
 import { TIME_UNIT_MAP_TYPE } from "../constants/type";
 import dayjs from "./dayjsLocale";
 
-const JWT_SECRET = config.jwt.jwtSecret;
-const expiredUnit = config.jwt.jwtUnitExpired;
-const typeExpired = config.jwt.jwtLabelExpired;
+const JWT_SECRET = config.jwt.secret;
+const expiredUnit = config.jwt.unitExpired;
+const typeExpired = config.jwt.labelExpired;
 
 export const hashPassword = async(plainPassword) => {
   if(!plainPassword) return null;
@@ -41,7 +41,7 @@ export const decodeToken = (token) => {
   if (!token) return "Token empty";
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration : config.jwt.jwtIgnoreExpiration });
+    const decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration : config.jwt.ignoreExpiration });
     return decoded;
   } catch (err) {
     if (err.name === "TokenExpiredError") return "Token expired";

@@ -8,6 +8,7 @@ import landing from "./routes/landing";
 import invite from "./routes/invite";
 import user from "./routes/user";
 import team from "./routes/team";
+import children from "./routes/children";
 
 const app = express();
 const apiRouter = express.Router();
@@ -23,6 +24,8 @@ apiRouter.get("/", (req, res) => formatResponse({ req, res, message: "API is run
 apiRouter.use("/auth", auth);
 // user
 apiRouter.use("/user", user);
+// children
+apiRouter.use("/children", children);
 // team
 apiRouter.use("/team", team);
 // invite
