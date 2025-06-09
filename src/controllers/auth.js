@@ -9,8 +9,8 @@ import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
   const { email, password, nik, name, children = [], role : roleBody = "user" } = req.body;
-  const deviceName = req.headers["x-device-name"] || null;
-  const appVersion = req.headers["x-app-version"] || null;
+  const deviceName = req.headers["x-device-name"] || "NOT SET";
+  const appVersion = req.headers["x-app-version"] || "NOT SET";
 
   const role = roleBody.toLowerCase();
 
@@ -89,8 +89,8 @@ export const registerController = async (req, res) => {
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
   const type = JWT_TYPE.login;
-  const deviceName = req.headers["x-device-name"] || null;
-  const appVersion = req.headers["x-app-version"] || null;
+  const deviceName = req.headers["x-device-name"] || "NOT SET";
+  const appVersion = req.headers["x-app-version"] || "NOT SET";
 
   try {
     const { data: user, error } = await supabaseInstance
@@ -189,8 +189,8 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = async (req, res) => {
   const { token: oldToken } = req.body;
   const type = JWT_TYPE.login;
-  const deviceName = req.headers["x-device-name"] || null;
-  const appVersion = req.headers["x-app-version"] || null;
+  const deviceName = req.headers["x-device-name"] || "NOT SET";
+  const appVersion = req.headers["x-app-version"] || "NOT SET";
 
   const decoded = decodeToken(oldToken);
 

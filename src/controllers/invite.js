@@ -7,8 +7,8 @@ import { EMAIL_TYPE, JWT_TYPE } from "../constants/type";
 
 export const resendEmailVerificationController = async (req, res) => {
   const userId = req.userId;
-  const deviceName = req.headers["x-device-name"] || null;
-  const appVersion = req.headers["x-app-version"] || null;
+  const deviceName = req.headers["x-device-name"] || "NOT SET";
+  const appVersion = req.headers["x-app-version"] || "NOT SET";
 
   try {
     const { data: user, error } = await supabaseInstance
