@@ -1,10 +1,11 @@
 import express from "express";
 import { validator, validatorWithUnique } from "../middlewares/validator";
 import authenticateToken from "../middlewares/authenticateToken";
-import { addOrEditChildrenController } from "../controllers/children";
+import { addOrEditChildrenController, deleteChildrenController } from "../controllers/children";
 
 const children = express.Router();
 
 children.post("/add-or-edit", authenticateToken, validator, validatorWithUnique, addOrEditChildrenController);
+children.delete("/delete", authenticateToken, validator, deleteChildrenController);
 
 export default children;

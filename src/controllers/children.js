@@ -12,8 +12,9 @@ export const addOrEditChildrenController = async (req, res) => {
     for (const child of children) {
       const { id, nik, name, date_of_birth, gender } = child;
       const nikValue = !nik || nik === "" ? null : nik;
-      if (id) updates.push({ id, nik : nikValue, name, date_of_birth, gender, id_parent: userId, });
-      else inserts.push({ nik : nikValue, name, date_of_birth, gender, id_parent: userId, });
+      const idValue = !id || id === "" ? undefined : id;
+      if (idValue) updates.push({ id : idValue, nik : nikValue, name, date_of_birth, gender, id_user: userId, });
+      else inserts.push({ nik : nikValue, name, date_of_birth, gender, id_user: userId, });
     }
 
     if (inserts.length > 0) {
@@ -34,7 +35,7 @@ export const addOrEditChildrenController = async (req, res) => {
           .from("childs_table")
           .update(fields)
           .eq("id", id)
-          .eq("id_parent", userId);
+          .eq("id_user", userId);
 
         if (error) {
           throw error;
@@ -47,4 +48,35 @@ export const addOrEditChildrenController = async (req, res) => {
     return formatResponse({ req, res, code: 500, error: err });
   }
 };
+
+export const deleteChildrenController = async (req, res) => {
+  const userId = req.userId;
+  const { id } = req.body;
+
+  if(id === undefined || id === null || id === "") return formatResponse({ req, res, code: 400, message: "Ada yang salah dari data yang kamu kirimkan", error: "ID not found" });
+
+  try {
+    const { data: child, error: childError } = await supabaseInstance
+      .from("childs_table")
+      .select("id")
+      .eq("id", id)
+      .eq("id_user", userId)
+      .single();
+
+    if (childError || !child) return formatResponse({ req, res, code: 404, message: "Data anak tidak ditemukan atau bukan milik pengguna." });
+
+    const { error: deleteChildError } = await supabaseInstance
+      .from("childs_table")
+      .delete()
+      .eq("id", id)
+      .eq("id_user", userId);
+
+    if (deleteChildError) throw deleteChildError;
+
+    return formatResponse({ req, res, code: 200, message: "Data anak berhasil dihapus.", data: null, });
+  } catch (err) {
+    return formatResponse({ req, res, code: 500, error: String(err) });
+  }
+};
+
 

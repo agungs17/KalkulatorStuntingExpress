@@ -9,6 +9,7 @@ import invite from "./routes/invite";
 import user from "./routes/user";
 import team from "./routes/team";
 import children from "./routes/children";
+import historyChildren from "./routes/historyChildren";
 
 const app = express();
 const apiRouter = express.Router();
@@ -30,6 +31,8 @@ apiRouter.use("/children", children);
 apiRouter.use("/team", team);
 // invite
 apiRouter.use("/invite", invite);
+// history children
+apiRouter.use("/history-children", historyChildren);
 // bulk
 apiRouter.use("/bulk", bulkController);
 

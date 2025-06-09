@@ -3,22 +3,20 @@ import { decodeToken } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
 import supabaseInstance from "../services/supabaseInstance";
 
-// Inner middleware
-const createMiddleware = ({ allowedRoles, requiredTypes }) => {
+const createMiddleware = ({ allowedRoles, requiredTypes, allowExpired = false }) => {
   return async (req, res, next) => {
     const authHeader = req.headers.authorization || "";
     const bearerToken = authHeader.replace("Bearer ", "");
     const queryToken = req.query.token || "";
     const token = bearerToken || queryToken || "";
 
-    const decoded = decodeToken(token);
-    if (decoded === "Token expired" || decoded === "Token invalid" || decoded === "Token empty") {
-      return formatResponse({ req, res, code: 401, message: "Token tidak valid atau sudah kedaluwarsa.", error: decoded });
-    }
+    const decoded = decodeToken(token, allowExpired);
 
-    if (!requiredTypes.includes(decoded?.type)) {
-      return formatResponse({ req, res, code: 401, message: "Jenis token tidak diizinkan.", error: "Token type invalid" });
-    }
+    if (decoded === "Token invalid" || decoded === "Token empty") return formatResponse({ req, res, code: 401, message: "Token tidak valid.", error: decoded });
+
+    if (decoded === "Token expired" && !allowExpired) return formatResponse({ req, res, code: 401, message: "Token sudah kedaluwarsa.", error: decoded });
+
+    if (!requiredTypes.includes(decoded?.type)) return formatResponse({ req, res, code: 401, message: "Jenis token tidak diizinkan.", error: "Token type invalid" });
 
     try {
       const { data: tokenRow, error } = await supabaseInstance
@@ -35,9 +33,7 @@ const createMiddleware = ({ allowedRoles, requiredTypes }) => {
 
       const userRole = tokenRow?.users_table?.role;
 
-      if (allowedRoles && !allowedRoles.includes(userRole)) {
-        return formatResponse({ req, res, code: 403, message: "Role tidak diizinkan.", error: "Forbidden" });
-      }
+      if (allowedRoles && !allowedRoles.includes(userRole)) return formatResponse({ req, res, code: 403, message: "Role tidak diizinkan.", error: "Forbidden" });
 
       req.tokenId = tokenRow.id;
       req.userId = decoded.id;
@@ -53,7 +49,8 @@ const createMiddleware = ({ allowedRoles, requiredTypes }) => {
 const authenticateToken = (optionsOrReq, res, next) => {
   const defaultOptions = {
     allowedRoles: [ROLE_TYPE.user, ROLE_TYPE.staff],
-    requiredTypes: [JWT_TYPE.login]
+    requiredTypes: [JWT_TYPE.login],
+    allowExpired: false
   };
 
   if (typeof optionsOrReq === "object" && optionsOrReq.headers) {

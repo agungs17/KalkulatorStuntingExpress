@@ -2,6 +2,7 @@ import Joi from "joi";
 import { GENDER_TYPE } from "./type";
 
 const pattern = {
+  id : Joi.string().optional().strip(),
   date: Joi.date().iso().required().messages({
     "date.base": "Format tanggal tidak valid",
     "date.format": "Tanggal harus dalam format ISO (YYYY-MM-DD)",
@@ -27,7 +28,7 @@ const pattern = {
 };
 
 const childSchema = Joi.object({
-  id: Joi.string().optional(),
+  id: pattern.id,
   name : pattern.name,
   nik: pattern.nik.optional().allow(""),
   date_of_birth: pattern.date,
@@ -38,6 +39,7 @@ const childSchema = Joi.object({
 });
 
 const defaultSchema = Joi.object({
+  id: pattern.id,
   name: pattern.name,
   email: Joi.string().trim().email().required().empty("").messages({
     "string.email": "Email tidak valid",

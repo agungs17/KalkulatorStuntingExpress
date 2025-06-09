@@ -9,6 +9,8 @@ import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
   const { email, password, nik, name, children = [], role : roleBody = "user" } = req.body;
+  const deviceName = req.headers["x-device-name"] || null;
+  const appVersion = req.headers["x-app-version"] || null;
 
   const role = roleBody.toLowerCase();
 
@@ -40,7 +42,7 @@ export const registerController = async (req, res) => {
     if (children.length > 0) {
       const childrenToInsert = children.map(child => {
         const nikValue = !child?.nik || child?.nik === "" ? null : child.nik;
-        return { id_parent: id, nik: nikValue, name: child.name, date_of_birth: child.date_of_birth, gender: child.gender, };
+        return { id_user: id, nik: nikValue, name: child.name, date_of_birth: child.date_of_birth, gender: child.gender, };
       });
 
       const { error: childrenError } = await supabaseInstance
@@ -61,7 +63,7 @@ export const registerController = async (req, res) => {
 
       const { error: tokenError } = await supabaseInstance
         .from("tokens_table")
-        .insert({ id_user: id, token, type, expires_at: expiredDatetime });
+        .insert({ id_user: id, token, type, expires_at: expiredDatetime, device : deviceName, version: appVersion });
 
       if (!tokenError) {
         const html = await getHtml("email-template.html", {
@@ -87,6 +89,8 @@ export const registerController = async (req, res) => {
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
   const type = JWT_TYPE.login;
+  const deviceName = req.headers["x-device-name"] || null;
+  const appVersion = req.headers["x-app-version"] || null;
 
   try {
     const { data: user, error } = await supabaseInstance
@@ -117,6 +121,8 @@ export const loginController = async (req, res) => {
         token,
         type,
         expires_at: expiredDatetime,
+        device : deviceName,
+        version: appVersion
       });
 
     let teamResult = {
@@ -183,6 +189,8 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = async (req, res) => {
   const { token: oldToken } = req.body;
   const type = JWT_TYPE.login;
+  const deviceName = req.headers["x-device-name"] || null;
+  const appVersion = req.headers["x-app-version"] || null;
 
   const decoded = decodeToken(oldToken);
 
@@ -204,7 +212,7 @@ export const refreshTokenController = async (req, res) => {
 
     await supabaseInstance
       .from("tokens_table")
-      .update({ token: newToken, expires_at: expiredDatetime })
+      .update({ token: newToken, expires_at: expiredDatetime, device: deviceName, version: appVersion })
       .eq("id", tokenData.id);
 
     return formatResponse({ req, res, code: 200, message: "Token berhasil diperbarui.", data: { token: newToken } });
@@ -213,4 +221,29 @@ export const refreshTokenController = async (req, res) => {
   }
 };
 
+export const logoutController = async (req, res) => {
+  const { tokenId } = req;
+  let code = 200;
+  let message = "Logout berhasil.";
+  let error = null;
+
+  try {
+    const { error: deleteError } = await supabaseInstance
+      .from("tokens_table")
+      .delete()
+      .eq("id", tokenId);
+
+    if (deleteError) {
+      code = 500;
+      message = "Gagal logout.";
+      error = deleteError;
+    }
+  } catch (err) {
+    code = 500;
+    message = "Terjadi kesalahan saat logout.";
+    error = String(err);
+  }
+
+  return formatResponse({ req, res, code, message, error });
+};
 

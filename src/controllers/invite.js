@@ -7,6 +7,9 @@ import { EMAIL_TYPE, JWT_TYPE } from "../constants/type";
 
 export const resendEmailVerificationController = async (req, res) => {
   const userId = req.userId;
+  const deviceName = req.headers["x-device-name"] || null;
+  const appVersion = req.headers["x-app-version"] || null;
+
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
@@ -46,6 +49,8 @@ export const resendEmailVerificationController = async (req, res) => {
           token,
           type,
           expires_at: expiredDatetime,
+          device : deviceName,
+          version: appVersion
         });
 
       const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verificationEmail });
@@ -60,6 +65,8 @@ export const resendEmailVerificationController = async (req, res) => {
 
 export const sendEmailForgotPassword = async (req, res) => {
   const { email } = req.body;
+  const deviceName = req.headers["x-device-name"] || null;
+  const appVersion = req.headers["x-app-version"] || null;
 
   try {
     const { data: user, error } = await supabaseInstance
@@ -96,6 +103,8 @@ export const sendEmailForgotPassword = async (req, res) => {
           token,
           type,
           expires_at: expiredDatetime,
+          device: deviceName,
+          version: appVersion
         });
 
       const html = await getHtml("email-template.html", { userName: user.name, link: `form-password?token=${token}`, expiredLabel, ...EMAIL_TYPE.forgotPasswordEmail });

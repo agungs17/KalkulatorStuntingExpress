@@ -36,12 +36,12 @@ export const generateToken = (payload) => {
   return { expiredUnix, expiredLabel, expiredDatetime, token };
 };
 
-export const decodeToken = (token) => {
+export const decodeToken = (token, allowExpired = false) => {
   if (!JWT_SECRET) throw new Error("❌ Tambahkan JWT_SECRET di .env");
   if (!token) return "Token empty";
 
   try {
-    const decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration : config.jwt.ignoreExpiration });
+    const decoded = jwt.verify(token, JWT_SECRET, { ignoreExpiration : allowExpired || config.jwt.ignoreExpiration });
     return decoded;
   } catch (err) {
     if (err.name === "TokenExpiredError") return "Token expired";

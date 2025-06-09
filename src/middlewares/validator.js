@@ -79,7 +79,7 @@ export const validatorWithUnique = async (req, res, next) => {
     const { data: childData } = await supabaseInstance
       .from("childs_table")
       .select("id, nik")
-      .eq("id_parent", userId);
+      .eq("id_user", userId);
 
     existingUser = userData;
     existingChildren = childData;
