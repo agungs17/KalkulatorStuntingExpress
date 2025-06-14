@@ -67,6 +67,7 @@ export const registerController = async (req, res) => {
 
       if (!tokenError) {
         const html = await getHtml("email-template.html", {
+          req,
           userName: name,
           link: `verify-email?token=${token}`,
           expiredLabel,

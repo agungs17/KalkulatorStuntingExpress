@@ -53,7 +53,7 @@ export const resendEmailVerificationController = async (req, res) => {
           version: appVersion
         });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verificationEmail });
+      const html = await getHtml("email-template.html", { req, userName: user.name, link: `verify-email?token=${token}`, expiredLabel, ...EMAIL_TYPE.verificationEmail });
       await sendEmail({ to: user.email, subject: "Verifikasi Email Anda", html });
     }
 
@@ -107,7 +107,7 @@ export const sendEmailForgotPassword = async (req, res) => {
           version: appVersion
         });
 
-      const html = await getHtml("email-template.html", { userName: user.name, link: `form-password?token=${token}`, expiredLabel, ...EMAIL_TYPE.forgotPasswordEmail });
+      const html = await getHtml("email-template.html", { req, userName: user.name, link: `form-password?token=${token}`, expiredLabel, ...EMAIL_TYPE.forgotPasswordEmail });
       await sendEmail({ to: user.email, subject: "Ganti Password Anda", html });
     }
 

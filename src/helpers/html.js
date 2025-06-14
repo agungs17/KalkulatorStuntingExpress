@@ -22,15 +22,19 @@ const minifyHtml = (html) => {
 };
 
 const getHtml = async (nameFile, propsHtml = {}) => {
-  const { userName = "User", header = "Your title", buttonName = "Button name", link = "", expiredLabel = "" } = propsHtml;
+
+  if (!req) throw new Error("req params is required");
+
+  const { userName = "User", header = "Your title", buttonName = "Button name", link = "", expiredLabel = "", req } = propsHtml;
   const date = dayjs();
 
   let html = await getFilePublic("html", nameFile);
+  const baseUrl = `${req.protocol}://${req.get("host")}`;
 
   html = html.replace(/{{userName}}/g, userName);
   html = html.replace(/{{header}}/g, header);
   html = html.replace(/{{buttonName}}/g, buttonName);
-  html = html.replace(/{{link}}/g, `${config.baseUrl}/landing/${link}`);
+  html = html.replace(/{{link}}/g, `${baseUrl}/landing/${link}`);
   html = html.replace(/{{expiredLabel}}/g, expiredLabel);
   html = html.replace(/{{brand}}/g, "Kalkulator Stunting");
   html = html.replace(/{{day}}/g, date.date().toString());

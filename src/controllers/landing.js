@@ -52,7 +52,7 @@ export const formPasswordController = async(req, res) => {
 
     if (error || !data) return res.status(400).send("Link tidak valid.");
 
-    const html = await getHtml("email-change-password.html");
+    const html = await getHtml("email-change-password.html", {req});
 
     return res .status(200).send(html);
 

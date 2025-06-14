@@ -19,9 +19,6 @@ PORT=3000
 NODE_ENV=dev # dev/prod
 LOGGING=true # true/false
 
-# im used to deploy vercel (https://vercel.com)
-BASE_URL=
-
 # supabase (https://supabase.com)
 SUPABASE_URL=
 SUPABASE_SERVICE_ROLE_KEY=
@@ -33,7 +30,7 @@ JWT_IGNORE_EXPIRATION=false
 JWT_UNIT_EXPIRED=12
 JWT_LABEL_EXPIRED=hours
 
-# nodemailer (if use email sender set BASE_URL)
+# nodemailer
 EMAIL_SERVICE=gmail
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
