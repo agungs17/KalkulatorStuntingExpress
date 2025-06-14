@@ -41,7 +41,7 @@ export const registerController = async (req, res) => {
 
     if (children.length > 0) {
       const childrenToInsert = children.map(child => {
-        const nikValue = !child?.nik || child?.nik === "" ? null : child.nik;
+        const nikValue = child?.nik === undefined || child?.nik === null || child?.nik === "" ? null : child.nik;
         return { id_user: id, nik: nikValue, name: child.name, date_of_birth: child.date_of_birth, gender: child.gender, };
       });
 

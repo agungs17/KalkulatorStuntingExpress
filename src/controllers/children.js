@@ -11,8 +11,8 @@ export const addOrEditChildrenController = async (req, res) => {
 
     for (const child of children) {
       const { id, nik, name, date_of_birth, gender } = child;
-      const nikValue = !nik || nik === "" ? null : nik;
-      const idValue = !id || id === "" ? undefined : id;
+      const nikValue = nik === undefined || nik === null || nik === "" ? null : nik;
+      const idValue = id === undefined || id === null || id === "" ? undefined : id;
       if (idValue) updates.push({ id : idValue, nik : nikValue, name, date_of_birth, gender, id_user: userId, });
       else inserts.push({ nik : nikValue, name, date_of_birth, gender, id_user: userId, });
     }
