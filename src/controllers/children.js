@@ -3,49 +3,41 @@ import supabaseInstance from "../services/supabaseInstance";
 
 export const addOrEditChildrenController = async (req, res) => {
   const userId = req.userId;
-  const { children } = req.body;
+  const { id, nik, name, date_of_birth, gender } = req.body;
+
+  const isInsert = id === undefined || id === null || id === "";
 
   try {
-    const inserts = [];
-    const updates = [];
-
-    for (const child of children) {
-      const { id, nik, name, date_of_birth, gender } = child;
-      const nikValue = nik === undefined || nik === null || nik === "" ? null : nik;
-      const idValue = id === undefined || id === null || id === "" ? undefined : id;
-      if (idValue) updates.push({ id : idValue, nik : nikValue, name, date_of_birth, gender, id_user: userId, });
-      else inserts.push({ nik : nikValue, name, date_of_birth, gender, id_user: userId, });
-    }
-
-    if (inserts.length > 0) {
-      const insertResult = await supabaseInstance
+    if(isInsert) {
+      // insert
+      const { error } = await supabaseInstance
         .from("childs_table")
-        .insert(inserts);
+        .insert({ id_user : userId, nik, name, date_of_birth, gender });
 
-      if (insertResult.error) {
-        throw insertResult.error;
-      }
+      if (error) return formatResponse({ req, res, code: 400, message: "Gagal menambahkan data anak.", error });
+      return formatResponse({ req, res, code: 200, message: "Berhasil menambahkan data anak." });
     }
 
-    if (updates.length > 0) {
-      for (const update of updates) {
-        const { id, ...fields } = update;
+    // update
+    const { data: existing, error: fetchError } = await supabaseInstance
+      .from("childs_table")
+      .select("id")
+      .eq("id", id)
+      .eq("id_user", userId)
+      .single();
 
-        const { error } = await supabaseInstance
-          .from("childs_table")
-          .update(fields)
-          .eq("id", id)
-          .eq("id_user", userId);
+    if (fetchError || !existing)  return formatResponse({ req, res, code: 404, message: "Data anak tidak ditemukan.", error: fetchError || "Not found" });
 
-        if (error) {
-          throw error;
-        }
-      }
-    }
+    const { error } = await supabaseInstance
+      .from("childs_table")
+      .update({ nik, name, date_of_birth, gender })
+      .eq("id", id)
+      .eq("id_user", userId);
 
-    return formatResponse({ req, res, code: 200, message: "Data anak berhasil disimpan.", data: null, });
+    if (error) return formatResponse({ req, res, code: 400, message: "Gagal mengupdate data anak.", error });
+    return formatResponse({ req, res, code: 200, message: "Berhasil mengupdate data anak." });
   } catch (err) {
-    return formatResponse({ req, res, code: 500, error: err });
+    return formatResponse({ req, res, code: 500, error: String(err) });
   }
 };
 

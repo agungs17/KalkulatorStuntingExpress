@@ -1,9 +1,13 @@
 import formatResponse from "../helpers/formatResponse";
+import { truncateDecimal } from "../helpers/number";
 import supabaseInstance from "../services/supabaseInstance";
 
 export const addOrEditChildrenController = async (req, res) => {
   const userId = req.userId;
-  const { id, id_children, height, weight, date_check } = req.body;
+  const { id, id_children, height : heightParams, weight : weightParams, date_check } = req.body;
+
+  const height = truncateDecimal(heightParams);
+  const weight = truncateDecimal(weightParams);
 
   const isInsert = id === undefined || id === null || id === "";
 

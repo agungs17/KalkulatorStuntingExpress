@@ -127,7 +127,7 @@ export const validatorWithUnique = async (req, res, next) => {
 
   childrenNikResults.forEach(({ index, data, skip }) => {
     if (skip) return;
-    if (data === true) childrenErrors[index].nik_error = "NIK anak sudah digunakan";
+    if (data === true) childrenErrors[index].nik_error = "NIK sudah digunakan";
   });
 
   Object.entries(childNikCount).forEach(([nikValue, count]) => {

@@ -1,4 +1,3 @@
-import config from "../configurations";
 import dayjs from "./dayjsLocale";
 import juice from "juice";
 import { minify } from "html-minifier-terser";
@@ -22,10 +21,10 @@ const minifyHtml = (html) => {
 };
 
 const getHtml = async (nameFile, propsHtml = {}) => {
+  const { userName = "User", header = "Your title", buttonName = "Button name", link = "", expiredLabel = "", req } = propsHtml;
 
   if (!req) throw new Error("req params is required");
 
-  const { userName = "User", header = "Your title", buttonName = "Button name", link = "", expiredLabel = "", req } = propsHtml;
   const date = dayjs();
 
   let html = await getFilePublic("html", nameFile);

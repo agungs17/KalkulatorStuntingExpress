@@ -21,7 +21,7 @@ const pattern = {
     .messages({
       "date.base": "Format tanggal tidak valid",
       "date.format": "Tanggal harus dalam format ISO (YYYY-MM-DD)",
-      "date.min": "Tanggal lahir tidak boleh lebih dari 5 tahun yang lalu",
+      "date.min": "Tanggal lahir tidak boleh lebih dari 5 tahun",
       "date.max": "Tanggal lahir tidak boleh melebihi hari ini",
       "any.required": "Tanggal wajib diisi",
     }),
@@ -54,6 +54,13 @@ const pattern = {
       "string.pattern.name":
         "Password harus mengandung minimal 1 huruf besar dan 1 angka",
     }),
+  gender : Joi.string()
+    .valid(...GENDER_TYPE)
+    .required()
+    .messages({
+      "any.only": "Format gender salah!",
+      "any.required": "Gender anak wajib diisi",
+    }),
 };
 
 const childSchema = Joi.object({
@@ -61,13 +68,7 @@ const childSchema = Joi.object({
   name: pattern.name,
   nik: pattern.nik.optional().allow(""),
   date_of_birth: pattern.minfiveYearDate,
-  gender: Joi.string()
-    .valid(...GENDER_TYPE)
-    .required()
-    .messages({
-      "any.only": "Format gender salah!",
-      "any.required": "Gender anak wajib diisi",
-    }),
+  gender: pattern.gender
 });
 
 const defaultSchema = Joi.object({
@@ -111,6 +112,8 @@ const defaultSchema = Joi.object({
     "number.max": "Berat badan maksimal adalah 40 kg",
     "any.required": "Berat badan wajib diisi",
   }),
+  gender : pattern.gender,
+  date_of_birth: pattern.minfiveYearDate,
   date_check: pattern.date,
 });
 
