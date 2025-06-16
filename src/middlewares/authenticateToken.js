@@ -1,11 +1,12 @@
 import { JWT_TYPE, ROLE_TYPE } from "../constants/type";
 import { decodeToken } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
+import { getHeaders } from "../helpers/header";
 import supabaseInstance from "../services/supabaseInstance";
 
 const createMiddleware = ({ allowedRoles, requiredTypes, allowExpired = false }) => {
   return async (req, res, next) => {
-    const authHeader = req.headers.authorization || "";
+    const {authorization : authHeader} = getHeaders(req);
     const bearerToken = authHeader.replace("Bearer ", "");
     const queryToken = req.query.token || "";
     const token = bearerToken || queryToken || "";

@@ -74,3 +74,30 @@ export const addOrEditChildrenController = async (req, res) => {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
 };
+
+export const deleteHistoryChildrenController = async(req, res) => {
+  const { id } = req.body;
+
+  if(id === undefined || id === null || id === "") return formatResponse({ req, res, code: 400, message: "Ada yang salah dari data yang kamu kirimkan", error: "ID not found" });
+
+  try {
+    const { data: historyChild, error: historyChildError } = await supabaseInstance
+      .from("histories_child_table")
+      .select("id")
+      .eq("id", id)
+      .single();
+
+    if (historyChildError || !historyChild) return formatResponse({ req, res, code: 404, message: "Data histori anak tidak ditemukan.", error : historyChildError });
+
+    const { error: deleteHistoryChild } = await supabaseInstance
+      .from("histories_child_table")
+      .delete()
+      .eq("id", id);
+
+    if (deleteHistoryChild) throw formatResponse({ req, res, code: 500, error: deleteHistoryChild });
+
+    return formatResponse({ req, res, code: 200, message: "Data histori anak berhasil dihapus.", data: null, });
+  } catch (err) {
+    return formatResponse({ req, res, code: 500, error: String(err) });
+  }
+};

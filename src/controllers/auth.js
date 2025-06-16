@@ -5,12 +5,12 @@ import config from "../configurations";
 import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
 import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
+import { getHeaders } from "../helpers/header";
 
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
   const { email, password, nik, name, children = [], role : roleBody = "user" } = req.body;
-  const deviceName = req.headers["x-device-name"] || "NOT SET";
-  const appVersion = req.headers["x-app-version"] || "NOT SET";
+  const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   const role = roleBody.toLowerCase();
 
@@ -63,7 +63,7 @@ export const registerController = async (req, res) => {
 
       const { error: tokenError } = await supabaseInstance
         .from("tokens_table")
-        .insert({ id_user: id, token, type, expires_at: expiredDatetime, device : deviceName, version: appVersion });
+        .insert({ id_user: id, token, type, expires_at: expiredDatetime, device_id : deviceId, device_name : deviceName, version: appVersion });
 
       if (!tokenError) {
         const html = await getHtml("email-template.html", {
@@ -90,8 +90,7 @@ export const registerController = async (req, res) => {
 export const loginController = async (req, res) => {
   const { email, password } = req.body;
   const type = JWT_TYPE.login;
-  const deviceName = req.headers["x-device-name"] || "NOT SET";
-  const appVersion = req.headers["x-app-version"] || "NOT SET";
+  const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   try {
     const { data: user, error } = await supabaseInstance
@@ -122,7 +121,8 @@ export const loginController = async (req, res) => {
         token,
         type,
         expires_at: expiredDatetime,
-        device : deviceName,
+        device_id : deviceId,
+        device_name : deviceName,
         version: appVersion
       });
 
@@ -190,8 +190,7 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = async (req, res) => {
   const { token: oldToken } = req.body;
   const type = JWT_TYPE.login;
-  const deviceName = req.headers["x-device-name"] || "NOT SET";
-  const appVersion = req.headers["x-app-version"] || "NOT SET";
+  const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   const decoded = decodeToken(oldToken);
 
@@ -213,7 +212,7 @@ export const refreshTokenController = async (req, res) => {
 
     await supabaseInstance
       .from("tokens_table")
-      .update({ token: newToken, expires_at: expiredDatetime, device: deviceName, version: appVersion })
+      .update({ token: newToken, expires_at: expiredDatetime, device_id : deviceId, device_name : deviceName, version: appVersion })
       .eq("id", tokenData.id);
 
     return formatResponse({ req, res, code: 200, message: "Token berhasil diperbarui.", data: { token: newToken } });

@@ -6,6 +6,6 @@ import { addOrEditChildrenController, deleteChildrenController } from "../contro
 const children = express.Router();
 
 children.post("/add-or-edit", authenticateToken, validator, validatorWithUnique, addOrEditChildrenController);
-children.delete("/delete", authenticateToken, validator, deleteChildrenController);
+children.delete("/delete", authenticateToken, deleteChildrenController);
 
 export default children;

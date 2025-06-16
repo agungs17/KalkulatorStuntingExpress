@@ -4,11 +4,11 @@ import { generateToken } from "../helpers/encryption";
 import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
 import { EMAIL_TYPE, JWT_TYPE } from "../constants/type";
+import { getHeaders } from "../helpers/header";
 
 export const resendEmailVerificationController = async (req, res) => {
   const userId = req.userId;
-  const deviceName = req.headers["x-device-name"] || "NOT SET";
-  const appVersion = req.headers["x-app-version"] || "NOT SET";
+  const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   try {
     const { data: user, error } = await supabaseInstance
@@ -49,7 +49,8 @@ export const resendEmailVerificationController = async (req, res) => {
           token,
           type,
           expires_at: expiredDatetime,
-          device : deviceName,
+          device_id : deviceId,
+          device_name : deviceName,
           version: appVersion
         });
 
@@ -65,8 +66,7 @@ export const resendEmailVerificationController = async (req, res) => {
 
 export const sendEmailForgotPassword = async (req, res) => {
   const { email } = req.body;
-  const deviceName = req.headers["x-device-name"] || null;
-  const appVersion = req.headers["x-app-version"] || null;
+  const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   try {
     const { data: user, error } = await supabaseInstance
@@ -103,7 +103,8 @@ export const sendEmailForgotPassword = async (req, res) => {
           token,
           type,
           expires_at: expiredDatetime,
-          device: deviceName,
+          device_id : deviceId,
+          device_name : deviceName,
           version: appVersion
         });
 

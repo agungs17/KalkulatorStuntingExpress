@@ -2,9 +2,10 @@ import config from "../configurations";
 import { getFilePublic } from "../helpers/path";
 import supabaseInstance from "../services/supabaseInstance";
 import formatResponse from "../helpers/formatResponse";
+import { getHeaders } from "../helpers/header";
 
 export const bulkController = async (req, res) => {
-  const token = req.headers["x-bulk-token"];
+  const {bulkToken : token} = getHeaders(req);
 
   if (token !== config.supabase.bulkToken || !config.supabase.bulkToken) return formatResponse({ req, res, code: 403, message: "Kamu tidak punya akses.", data: null, error: "Forbidden" });
 

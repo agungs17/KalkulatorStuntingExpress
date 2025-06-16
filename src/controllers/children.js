@@ -55,7 +55,7 @@ export const deleteChildrenController = async (req, res) => {
       .eq("id_user", userId)
       .single();
 
-    if (childError || !child) return formatResponse({ req, res, code: 404, message: "Data anak tidak ditemukan atau bukan milik pengguna." });
+    if (childError || !child) return formatResponse({ req, res, code: 404, message: "Data anak tidak ditemukan atau bukan milik pengguna.", error : childError });
 
     const { error: deleteChildError } = await supabaseInstance
       .from("childs_table")
@@ -63,7 +63,7 @@ export const deleteChildrenController = async (req, res) => {
       .eq("id", id)
       .eq("id_user", userId);
 
-    if (deleteChildError) throw deleteChildError;
+    if (deleteChildError) throw formatResponse({ req, res, code: 500, error: deleteChildError });
 
     return formatResponse({ req, res, code: 200, message: "Data anak berhasil dihapus.", data: null, });
   } catch (err) {
