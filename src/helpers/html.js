@@ -21,9 +21,9 @@ const minifyHtml = (html) => {
 };
 
 const getHtml = async (nameFile, propsHtml = {}) => {
-  if (!req) throw new Error("req params is required");
-
   const { userName = "User", header = "Your title", buttonName = "Button name", link = "", expiredLabel = "", req } = propsHtml;
+
+  if (!req) throw new Error("req params is required");
 
   const date = dayjs();
 
