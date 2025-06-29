@@ -20,7 +20,7 @@ const pattern = {
     .required()
     .messages({
       "date.base": "Format tanggal tidak valid",
-      "date.format": "Tanggal harus dalam format ISO (YYYY-MM-DD)",
+      "date.format": "Tanggal harus format (YYYY-MM-DD)",
       "date.min": "Tanggal lahir tidak boleh lebih dari 5 tahun",
       "date.max": "Tanggal lahir tidak boleh melebihi hari ini",
       "any.required": "Tanggal wajib diisi",
