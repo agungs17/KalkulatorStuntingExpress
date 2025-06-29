@@ -58,9 +58,9 @@ const pattern = {
     .valid(...GENDER_TYPE)
     .required()
     .messages({
-      "any.only": "Format gender salah!",
-      "any.required": "Gender anak wajib diisi",
-      "string.empty": "Gender tidak boleh kosong"
+      "any.only": "Format jenis kelamin salah!",
+      "any.required": "Jenis kelamin wajib diisi",
+      "string.empty": "Jenis kelamin tidak boleh kosong"
     }),
 };
 
