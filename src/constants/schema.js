@@ -9,7 +9,7 @@ const pattern = {
   id: Joi.string().optional().strip(),
   date: Joi.date().iso().max(today).required().messages({
     "date.base": "Format tanggal tidak valid",
-    "date.format": "Tanggal harus dalam format ISO (YYYY-MM-DD)",
+    "date.format": "Tanggal harus format (YYYY-MM-DD)",
     "date.max": "Tanggal lahir tidak boleh melebihi hari ini",
     "any.required": "Tanggal wajib diisi",
   }),
