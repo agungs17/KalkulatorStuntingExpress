@@ -60,6 +60,7 @@ const pattern = {
     .messages({
       "any.only": "Format gender salah!",
       "any.required": "Gender anak wajib diisi",
+      "string.empty": "Gender tidak boleh kosong"
     }),
 };
 
