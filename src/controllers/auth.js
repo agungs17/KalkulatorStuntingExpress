@@ -6,6 +6,7 @@ import { getHtml } from "../helpers/html";
 import { sendEmail } from "../services/nodemailerInstance";
 import { JWT_TYPE, ROLE_TYPE, EMAIL_TYPE } from "../constants/type";
 import { getHeaders } from "../helpers/header";
+import { eachFirstCapitalWord } from "../helpers/string";
 
 export const registerController = async (req, res) => {
   const { useNodemailer } = config.nodemailer || {};
@@ -22,7 +23,7 @@ export const registerController = async (req, res) => {
     const { data: userData, error: userError } = await supabaseInstance
       .from("users_table")
       .insert({
-        name,
+        name : eachFirstCapitalWord(name),
         nik,
         email,
         password_hash,
@@ -42,7 +43,7 @@ export const registerController = async (req, res) => {
     if (children.length > 0) {
       const childrenToInsert = children.map(child => {
         const nikValue = child?.nik === undefined || child?.nik === null || child?.nik === "" ? null : child.nik;
-        return { id_user: id, nik: nikValue, name: child.name, date_of_birth: child.date_of_birth, gender: child.gender, };
+        return { id_user: id, nik: nikValue, name: eachFirstCapitalWord(child.name), date_of_birth: child.date_of_birth, gender: child.gender, };
       });
 
       const { error: childrenError } = await supabaseInstance

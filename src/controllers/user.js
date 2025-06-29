@@ -2,6 +2,7 @@ import supabaseInstance from "../services/supabaseInstance";
 import { comparePassword, hashPassword } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
 import { JWT_TYPE, ROLE_TYPE } from "../constants/type";
+import { eachFirstCapitalWord } from "../helpers/string";
 
 export const profileController = async (req, res) => {
   const userId = req.userId;
@@ -86,7 +87,7 @@ export const editProfileController = async (req, res) => {
   try {
     const { error: updateError } = await supabaseInstance
       .from("users_table")
-      .update({ nik, name, role })
+      .update({ nik, name : eachFirstCapitalWord(name), role })
       .eq("id", userId);
 
     if (updateError) return formatResponse({ req, res, code: 500, message: "Gagal edit profile.", error: updateError });

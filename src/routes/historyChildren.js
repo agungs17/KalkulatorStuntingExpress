@@ -6,6 +6,6 @@ import { validator } from "../middlewares/validator";
 const historyChild = express.Router();
 
 historyChild.post("/add-or-edit", authenticateToken, validator, addOrEditChildrenController);
-historyChild.delete("/add-or-edit", authenticateToken, deleteHistoryChildrenController);
+historyChild.delete("/delete", authenticateToken, deleteHistoryChildrenController);
 
 export default historyChild;

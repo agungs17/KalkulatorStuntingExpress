@@ -1,4 +1,5 @@
 import formatResponse from "../helpers/formatResponse";
+import { eachFirstCapitalWord } from "../helpers/string";
 import supabaseInstance from "../services/supabaseInstance";
 
 export const addOrEditChildrenController = async (req, res) => {
@@ -12,7 +13,7 @@ export const addOrEditChildrenController = async (req, res) => {
       // insert
       const { error } = await supabaseInstance
         .from("childs_table")
-        .insert({ id_user : userId, nik, name, date_of_birth, gender });
+        .insert({ id_user : userId, nik, name : eachFirstCapitalWord(name), date_of_birth, gender });
 
       if (error) return formatResponse({ req, res, code: 400, message: "Gagal menambahkan data anak.", error });
       return formatResponse({ req, res, code: 200, message: "Berhasil menambahkan data anak." });
@@ -30,7 +31,7 @@ export const addOrEditChildrenController = async (req, res) => {
 
     const { error } = await supabaseInstance
       .from("childs_table")
-      .update({ nik, name, date_of_birth, gender })
+      .update({ nik, name : eachFirstCapitalWord(name), date_of_birth, gender })
       .eq("id", id)
       .eq("id_user", userId);
 
