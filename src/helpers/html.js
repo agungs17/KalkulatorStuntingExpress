@@ -2,6 +2,7 @@ import dayjs from "./dayjsLocale";
 import juice from "juice";
 import { minify } from "html-minifier-terser";
 import { getFilePublic } from "./path";
+import { eachFirstCapitalWord } from "./string";
 
 const minifyHtml = (html) => {
   const inlinedHtml = juice(html);
@@ -30,7 +31,7 @@ const getHtml = async (nameFile, propsHtml = {}) => {
   let html = await getFilePublic("html", nameFile);
   const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-  html = html.replace(/{{userName}}/g, userName);
+  html = html.replace(/{{userName}}/g, eachFirstCapitalWord(userName));
   html = html.replace(/{{header}}/g, header);
   html = html.replace(/{{buttonName}}/g, buttonName);
   html = html.replace(/{{link}}/g, `${baseUrl}/landing/${link}`);
