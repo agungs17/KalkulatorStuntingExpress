@@ -31,15 +31,15 @@ const getHtml = async (nameFile, propsHtml = {}) => {
   let html = await getFilePublic("html", nameFile);
   const baseUrl = `${req.protocol}://${req.get("host")}`;
 
-  html = html.replace(/{{userName}}/g, eachFirstCapitalWord(userName));
-  html = html.replace(/{{header}}/g, header);
-  html = html.replace(/{{buttonName}}/g, buttonName);
-  html = html.replace(/{{link}}/g, `${baseUrl}/landing/${link}`);
-  html = html.replace(/{{expiredLabel}}/g, expiredLabel);
-  html = html.replace(/{{brand}}/g, "Kalkulator Stunting");
-  html = html.replace(/{{day}}/g, date.date().toString());
-  html = html.replace(/{{month}}/g, date.format("MMMM"));
-  html = html.replace(/{{year}}/g, date.year().toString());
+  html = html?.replace?.(/{{userName}}/g, eachFirstCapitalWord(userName));
+  html = html?.replace?.(/{{header}}/g, header);
+  html = html?.replace?.(/{{buttonName}}/g, buttonName);
+  html = html?.replace?.(/{{link}}/g, `${baseUrl}/landing/${link}`);
+  html = html?.replace?.(/{{expiredLabel}}/g, expiredLabel);
+  html = html?.replace?.(/{{brand}}/g, "Kalkulator Stunting");
+  html = html?.replace?.(/{{day}}/g, date.date().toString());
+  html = html?.replace?.(/{{month}}/g, date.format("MMMM"));
+  html = html?.replace?.(/{{year}}/g, date.year().toString());
 
   const minified = minifyHtml(html);
 

@@ -6,8 +6,8 @@ import supabaseInstance from "../services/supabaseInstance";
 
 const createMiddleware = ({ allowedRoles, requiredTypes, allowExpired = false }) => {
   return async (req, res, next) => {
-    const {authorization : authHeader} = getHeaders(req);
-    const bearerToken = authHeader.replace("Bearer ", "");
+    const { authorization : authHeader } = getHeaders(req);
+    const bearerToken = authHeader?.replace?.("Bearer ", "");
     const queryToken = req.query.token || "";
     const token = bearerToken || queryToken || "";
 
