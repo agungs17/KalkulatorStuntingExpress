@@ -109,7 +109,7 @@ export const loginController = async (req, res) => {
     const validPassword = await comparePassword(password, user?.password_hash);
     if (!validPassword || !user) {
       message = "Email atau password salah.";
-      code = 401;
+      code = 400;
       return formatResponse({ req, res, error: message, code, data, message });
     }
 

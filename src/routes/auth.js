@@ -14,7 +14,7 @@ auth.post("/check-unique", validator, validatorWithUnique, (_, res) => {
     error: null
   });
 });
-auth.post("/register", validator, validatorWithUnique, registerController);
+auth.post("/register", rateLimiter({ request : 10, minute : 5 }), validator, validatorWithUnique, registerController);
 auth.post("/login", rateLimiter({ request : 10, minute : 5 }), validator, loginController);
 auth.post("/refresh-token", refreshTokenController);
 auth.delete("/logout", authenticateToken({ allowExpired : true }), logoutController);
