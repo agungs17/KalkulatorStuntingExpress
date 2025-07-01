@@ -11,7 +11,7 @@ export const resendEmailVerificationController = async (req, res) => {
   const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   try {
-    const { data: user, error } = await supabaseInstance
+    const { data: user, error : errorUser } = await supabaseInstance
       .from("users_table")
       .select("email, name, email_verification")
       .eq("id", userId)
@@ -21,15 +21,18 @@ export const resendEmailVerificationController = async (req, res) => {
 
     let code = 200;
     let message = "Email verifikasi berhasil dikirim ulang.";
+    let error = errorUser;
 
     if(!user) {
       code = 404;
       message = "Pengguna tidak ditemukan.";
+      error = "User not found";
     }
 
     if(user.email_verification) {
       code = 400;
       message = "Email sudah terverifikasi.";
+      error = "User already verified";
     }
 
     if(!error && user && !user.email_verification) {
@@ -69,7 +72,7 @@ export const sendEmailForgotPassword = async (req, res) => {
   const {deviceName, deviceId, appVersion} = getHeaders(req);
 
   try {
-    const { data: user, error } = await supabaseInstance
+    const { data: user, error: errorUser } = await supabaseInstance
       .from("users_table")
       .select("id, email, name")
       .eq("email", email)
@@ -79,10 +82,12 @@ export const sendEmailForgotPassword = async (req, res) => {
 
     let code = 200;
     let message = "Berhasil mengirim email lupa password";
+    let error = errorUser;
 
     if(!user) {
       code = 404;
       message = "Pengguna tidak ditemukan.";
+      error = "User not found";
     }
 
     if(!error && user) {
