@@ -17,7 +17,7 @@ const createMiddleware = ({ allowedRoles, requiredTypes, allowExpired = false })
 
     if (decoded === "Token expired" && !allowExpired) return formatResponse({ req, res, code: 401, message: "Token sudah kedaluwarsa.", error: decoded });
 
-    if (!requiredTypes.includes(decoded?.type)) return formatResponse({ req, res, code: 401, message: "Jenis token tidak diizinkan.", error: "Token type invalid" });
+    if (!requiredTypes.includes(decoded?.type)) return formatResponse({ req, res, code: 401, message: "Jenis token tidak diizinkan.", error: "Token invalid" });
 
     try {
       const { data: tokenRow, error } = await supabaseInstance
