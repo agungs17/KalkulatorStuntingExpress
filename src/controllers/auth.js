@@ -207,7 +207,7 @@ export const refreshTokenController = async (req, res) => {
       .limit(1)
       .single();
 
-    if (error || !tokenData) return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau sudah tidak berlaku.", error: "Token not found" });
+    if (error || !tokenData) return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau sudah tidak berlaku.", error: "Token empty" });
 
     const { token: newToken, expiredDatetime } = generateToken({ id: tokenData.id_user, type });
 

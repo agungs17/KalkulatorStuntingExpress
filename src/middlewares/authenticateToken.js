@@ -29,7 +29,7 @@ const createMiddleware = ({ allowedRoles, requiredTypes, allowExpired = false })
         .single();
 
       if (error || !tokenRow) {
-        return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau tidak berlaku.", error: "Token not found" });
+        return formatResponse({ req, res, code: 401, message: "Token tidak ditemukan atau tidak berlaku.", error: "Token empty" });
       }
 
       const userRole = tokenRow?.users_table?.role;
