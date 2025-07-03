@@ -41,12 +41,6 @@ export const resendEmailVerificationController = async (req, res) => {
 
       await supabaseInstance
         .from("tokens_table")
-        .delete()
-        .eq("id_user", userId)
-        .eq("type", type);
-
-      await supabaseInstance
-        .from("tokens_table")
         .insert({
           id_user: userId,
           token,
@@ -94,12 +88,6 @@ export const sendEmailForgotPassword = async (req, res) => {
       const type = JWT_TYPE.forgotPasswordEmail;
       const userId = user?.id;
       const { token, expiredLabel, expiredDatetime } = generateToken({ id: userId, type });
-
-      await supabaseInstance
-        .from("tokens_table")
-        .delete()
-        .eq("id_user", userId)
-        .eq("type", type);
 
       await supabaseInstance
         .from("tokens_table")
