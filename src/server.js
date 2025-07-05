@@ -3,6 +3,9 @@ import config from "./configurations";
 import formatResponse from "./helpers/formatResponse";
 import { bulkController } from "./controllers/bulk";
 
+import helmet from "helmet";
+import cors from "cors";
+
 import auth from "./routes/auth";
 import landing from "./routes/landing";
 import invite from "./routes/invite";
@@ -13,6 +16,20 @@ import historyChildren from "./routes/historyChildren";
 
 const app = express();
 const apiRouter = express.Router();
+
+app.use(helmet());
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+
+    const allowedOrigins = config.nodeEnv === "dev" ? [`http://localhost:${config.port}`] : process.env.CORS_ORIGIN?.split(",") || [];
+
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    else return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Bulk-Token"]
+}));
 
 app.use(express.json());
 
