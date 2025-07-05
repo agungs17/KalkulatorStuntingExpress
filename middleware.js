@@ -1,8 +1,8 @@
-// middleware.js
-import { NextResponse } from "@vercel/edge";
-
 export function middleware() {
-  return new NextResponse("Unauthorized: Token tidak valid.", { status: 401 });
+  return new Response(JSON.stringify({ message : "Error Server" }), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
 }
 
 export const config = {
