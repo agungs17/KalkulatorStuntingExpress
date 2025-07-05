@@ -6,7 +6,7 @@
   "scripts": {
     "prepare": "husky",
     "start": "node api/index.js",
-    "build": "npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
+    "build": "rm -rf api && npm run git:untrack:index && npm run git:untrack:index.map && node esbuild.config.js",
     "lint": "eslint index.js src/",
     "lintfix": "eslint --fix index.js src/",
     "git:untrack:index": "git update-index --assume-unchanged api/index.js",
