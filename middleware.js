@@ -1,5 +1,5 @@
 // middleware.js
-import { NextResponse } from "next/server";
+import { NextResponse } from "@vercel/edge";
 
 export function middleware() {
   return new NextResponse("Unauthorized: Token tidak valid.", { status: 401 });
