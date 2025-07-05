@@ -22,12 +22,12 @@ app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
 
-    const allowedOrigins = config.nodeEnv === "dev" ? [`http://localhost:${config.port}`] : process.env.CORS_ORIGIN?.split(",") || [];
+    const allowedOrigins = config.corsOrigin;
 
     if (allowedOrigins.includes(origin)) return callback(null, true);
     else return callback(new Error("Not allowed by CORS"));
   },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  methods: ["GET", "POST", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Bulk-Token"]
 }));
 
