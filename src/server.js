@@ -30,7 +30,6 @@ app.use(cors({
   methods: ["GET", "POST", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization", "X-Bulk-Token"]
 }));
-
 app.use(express.json());
 
 if (config.nodeEnv === "dev") app.get("/", (_, res) => res.redirect("/api"));
