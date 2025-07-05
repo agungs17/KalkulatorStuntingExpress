@@ -29,7 +29,7 @@ const formatResponse = ({
     error: finalError
   };
 
-  if (config.logging && config.nodeEnv === "dev") console.log(`[${path}]\r\n`, result);
+  if (config.logging) console.log(`[${path}]\r\n`, result);
 
   return res.status(code).json(result);
 };
