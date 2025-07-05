@@ -11,7 +11,7 @@ build({
   logLevel: "info",
   minify: true,
   minifyWhitespace : true,
-  minifyIdentifiers : true, 
+  minifyIdentifiers : true,
   minifySyntax : true,
   treeShaking: true,
   packages: "external",

@@ -12,7 +12,7 @@ const esbuild = require("esbuild");
     logLevel: "info",
     minify: false,
     minifyWhitespace : false,
-    minifyIdentifiers : false, 
+    minifyIdentifiers : false,
     minifySyntax : false,
     treeShaking: false,
     packages: "external"
