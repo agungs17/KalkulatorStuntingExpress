@@ -1,8 +1,16 @@
 {
   "version": 2,
   "regions": ["sin1"],
+  "functions": {
+    "api/index.js": {
+      "runtime": "@vercel/node@5.1.16",
+      "includeFiles": "public/**"
+    }
+  },
   "redirects": [
     { "source": "/", "destination": "/api", "permanent": true }
   ],
-  "rewrites": [{ "source": "/(.*)", "destination": "/api" }]
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index.js" }
+  ]
 }
