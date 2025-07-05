@@ -1,12 +1,9 @@
-import { NextResponse } from "next/server";
-
-export function middleware() {
-  return NextResponse.json(
-    { message: "Blocked by middleware. Function was not invoked." },
-    { status: 403 }
+export default function middleware() {
+  return new Response(
+    JSON.stringify({ message: "Blocked by middleware" }),
+    {
+      status: 403,
+      headers: { "content-type": "application/json" },
+    }
   );
 }
-
-export const config = {
-  matcher: ["/api/:path*"], // intercept semua /api/*
-};
