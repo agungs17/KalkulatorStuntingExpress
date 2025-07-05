@@ -28,7 +28,7 @@ const config = Object.freeze({
     unitExpired : process.env.JWT_UNIT_EXPIRED !== undefined ? process.env.JWT_UNIT_EXPIRED : 12,
     labelExpired : process.env.JWT_LABEL_EXPIRED || "hours"
   },
-  logging: process.env.LOGGING || false,
+  logging: process.env.LOGGING === "true" || false,
 });
 
 export default config;
