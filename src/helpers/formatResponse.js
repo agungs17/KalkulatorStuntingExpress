@@ -11,7 +11,7 @@ const formatResponse = async({
 }) => {
   const msgSuccess = "Permintaan berhasil.";
   const msgError = "Sepertinya ada yang tidak beres.";
-  const path = req?.path || "UnknownPath";
+  const path = req?.originalUrl || req?.url || "UnknownPath";
 
   code = error ? code || 500 : code || 200;
   message = !error || code === 200 ? message || msgSuccess : message || msgError;
