@@ -17,7 +17,14 @@ import historyChildren from "./routes/historyChildren";
 const app = express();
 const apiRouter = express.Router();
 
-app.use(helmet());
+app.use(
+  helmet.contentSecurityPolicy({
+    useDefaults: true,
+    directives: {
+      "script-src": ["'self'", "'unsafe-inline'"]
+    },
+  })
+);
 app.use(cors({
   origin: (origin, callback) => {
     if (!origin) return callback(null, true);
