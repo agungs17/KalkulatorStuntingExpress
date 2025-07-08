@@ -1,6 +1,7 @@
 import config from "../configurations";
+import logflareInstance from "../services/logflareInstance";
 
-const formatResponse = ({
+const formatResponse = async({
   req = {},
   res = {},
   code,
@@ -30,6 +31,17 @@ const formatResponse = ({
   };
 
   if (config.logging) console.log(`[${path}]\r\n`, result);
+  if (config.logflare.useLogflare) {
+    const host = req?.headers?.host || "UnknownHost";
+    const fullPath = `${req.protocol || "http"}://${host}${path}`;
+    const header = req?.headers || {};
+    await logflareInstance({
+      event_message : fullPath,
+      metadata : {
+        header,
+        result
+      }});
+  }
 
   return res.status(code).json(result);
 };

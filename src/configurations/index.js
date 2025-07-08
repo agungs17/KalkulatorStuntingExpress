@@ -12,7 +12,7 @@ const config = Object.freeze({
     url: process.env.SUPABASE_URL,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
     bulkToken: process.env.SUPABASE_BULK_TOKEN,
-    useSupabase : process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY
+    useSupabase : !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
   },
   nodemailer : {
     port : process.env.EMAIL_PORT,
@@ -20,7 +20,7 @@ const config = Object.freeze({
     service : process.env.EMAIL_SERVICE,
     email : process.env.EMAIL_USER,
     password : process.env.EMAIL_PASSWORD,
-    useNodemailer : process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && process.env.EMAIL_HOST && process.env.EMAIL_SERVICE
+    useNodemailer : !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && process.env.EMAIL_HOST && process.env.EMAIL_SERVICE)
   },
   jwt : {
     secret : process.env.JWT_SECRET,
@@ -29,6 +29,11 @@ const config = Object.freeze({
     labelExpired : process.env.JWT_LABEL_EXPIRED || "hours"
   },
   logging: process.env.LOGGING === "true" || false,
+  logflare : {
+    sourceToken: process.env.LOGFLARE_SOURCE_TOKEN,
+    apiKey: process.env.LOGFLARE_API_KEY,
+    useLogflare: !!(process.env.LOGFLARE_API_KEY && process.env.LOGFLARE_SOURCE_TOKEN)
+  }
 });
 
 export default config;
