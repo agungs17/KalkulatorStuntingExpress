@@ -1,9 +1,11 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+const forceLogflare = false; // Set to true to force Logflare usage in development mode
 const defaultPort = process.env.PORT || 3000;
 const nodeEnv = process.env.NODE_ENV || "dev";
 
+const logFlareEnv = nodeEnv === "dev" ? forceLogflare : true;
 const config = Object.freeze({
   port: defaultPort,
   nodeEnv,
@@ -32,7 +34,7 @@ const config = Object.freeze({
   logflare : {
     sourceToken: process.env.LOGFLARE_SOURCE_TOKEN,
     apiKey: process.env.LOGFLARE_API_KEY,
-    useLogflare: !!(process.env.LOGFLARE_API_KEY && process.env.LOGFLARE_SOURCE_TOKEN)
+    useLogflare: !!(process.env.LOGFLARE_API_KEY && process.env.LOGFLARE_SOURCE_TOKEN && logFlareEnv)
   }
 });
 
