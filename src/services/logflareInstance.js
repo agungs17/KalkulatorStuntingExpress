@@ -1,12 +1,10 @@
 import config from "../configurations";
-import dayjs from "../helpers/dayjsLocale";
 
 const logflareInstance = async (logData) => {
   try {
-    const localDateTime = dayjs().format("YYYY-MM-DD HH:mm:ss");
     const payload = {
       event_message: logData.event_message || "No path provided",
-      metadata: { ...logData.metadata, local_date_time : localDateTime } || {},
+      metadata: { ...logData.metadata } || {},
     };
 
     const res = await fetch(`https://api.logflare.app/logs?source=${config.logflare.sourceToken}`, {
