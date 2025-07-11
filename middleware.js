@@ -24,6 +24,6 @@ export default function middleware(req) {
     );
   }
 
-  // lanjutkan request ke serverless function
-  return new Response(null, { status: 200 });
+  // 🟢 biarkan request lanjut
+  return; // <--- ini kunci biar diteruskan
 }
