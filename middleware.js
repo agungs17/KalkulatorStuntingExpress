@@ -1,11 +1,9 @@
-import { NextResponse } from "next/server";
-
 export const config = {
-  matcher: "/api/:path*" // 🟢 intercept semua /api/*
+  matcher: "/api/:path*" // intercept semua /api/*
 };
 
 export default function middleware(req) {
-  console.log("🔥 Middleware triggered:", req.url);
+  console.log("🔥 Middleware hit:", req.url);
 
   const maintenance = false;
 
@@ -19,10 +17,13 @@ export default function middleware(req) {
       }),
       {
         status: 503,
-        headers: { "Content-Type": "application/json" }
+        headers: {
+          "Content-Type": "application/json"
+        }
       }
     );
   }
 
-  return NextResponse.next();
+  // lanjutkan request ke serverless function
+  return new Response(null, { status: 200 });
 }
