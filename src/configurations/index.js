@@ -1,11 +1,15 @@
 import dotenv from "dotenv";
 dotenv.config();
 
-const forceLogflare = false; // Set to true to force Logflare usage in development mode
 const defaultPort = process.env.PORT || 3000;
 const nodeEnv = process.env.NODE_ENV || "dev";
 
+const forceLogflare = false; // Set to true to force Logflare usage in development mode
 const logFlareEnv = nodeEnv === "dev" ? forceLogflare : true;
+
+const forceUpstashRedis = false; // Set to true to force Upstash/Redis usage in development mode
+const forceUpstashRedishEnv = nodeEnv === "dev" ? forceUpstashRedis : true;
+
 const config = Object.freeze({
   port: defaultPort,
   nodeEnv,
@@ -35,6 +39,11 @@ const config = Object.freeze({
     sourceToken: process.env.LOGFLARE_SOURCE_TOKEN,
     apiKey: process.env.LOGFLARE_API_KEY,
     useLogflare: !!(process.env.LOGFLARE_API_KEY && process.env.LOGFLARE_SOURCE_TOKEN && logFlareEnv)
+  },
+  upstashRedis : {
+    url: process.env.UPSTASH_REDIS_URL,
+    token: process.env.UPSTASH_REDIS_TOKEN,
+    useUpstashRedis : !!(process.env.UPSTASH_REDIS_URL && process.env.UPSTASH_REDIS_TOKEN && forceUpstashRedishEnv)
   }
 });
 

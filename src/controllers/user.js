@@ -3,6 +3,9 @@ import { comparePassword, hashPassword } from "../helpers/encryption";
 import formatResponse from "../helpers/formatResponse";
 import { JWT_TYPE, ROLE_TYPE } from "../constants/type";
 import { eachFirstCapitalWord } from "../helpers/string";
+import { deleteCache, setCache } from "../services/cacheInstance";
+import CACHE_KEYS from "../constants/cache";
+import dayjs from "../helpers/dayjsLocale";
 
 export const profileController = async (req, res) => {
   const userId = req.userId;
@@ -69,6 +72,7 @@ export const profileController = async (req, res) => {
           team: teamResult
         }
       };
+      await setCache(CACHE_KEYS.GET_PROFILE(userId), { error: errorMessage, code, data, message }, dayjs().add(12, "hour").toDate());
     }
 
     return formatResponse({ req, res, error: errorMessage, code, data, message });
@@ -91,7 +95,10 @@ export const editProfileController = async (req, res) => {
       .eq("id", userId);
 
     if (updateError) return formatResponse({ req, res, code: 500, message: "Gagal edit profile.", error: updateError });
-    else return formatResponse({ req, res, code: 200, message: "Profile berhasil diubah.", data: null });
+    else {
+      await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
+      return formatResponse({ req, res, code: 200, message: "Profile berhasil diubah.", data: null });
+    }
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
