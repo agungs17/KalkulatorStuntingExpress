@@ -1,3 +1,5 @@
+import { NextResponse } from "next/server";
+
 export const config = {
   matcher: "/api/:path*" // 🟢 intercept semua /api/*
 };
@@ -22,5 +24,5 @@ export default function middleware(req) {
     );
   }
 
-  return Response.next();
+  return NextResponse.next();
 }
