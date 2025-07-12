@@ -1,12 +1,13 @@
 import { next } from "@vercel/functions";
 // import { Arcjet } from "@arcjet/vercel";
+import landingHtml from "./public/html/landing-page.html";
 
 // const arcjet = new Arcjet({
 //   token: process.env.ARCJET_TOKEN
 // });
 
 export const config = {
-  matcher: ["/:path*"] // Intercept semua path
+  matcher: ["/:path*"]
 };
 
 export default async function middleware(req) {
@@ -31,9 +32,8 @@ export default async function middleware(req) {
     return next();
   }
 
-  // ✅ Kalau root path (/) → munculin halaman Hello!
   if (pathname === "/") {
-    return new Response("<h1>Hello!</h1>", {
+    return new Response(landingHtml, {
       status: 200,
       headers: {
         "Content-Type": "text/html",
@@ -41,6 +41,5 @@ export default async function middleware(req) {
     });
   }
 
-  // ✅ Semua path lain (misalnya /landing) diterusin aja
   return next();
 }
