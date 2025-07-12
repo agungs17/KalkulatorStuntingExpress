@@ -5,7 +5,7 @@ export const config = {
 export default function middleware(req) {
   console.log("🔥 Middleware hit:", req.url);
 
-  const maintenance = true;
+  const maintenance = false;
 
   if (maintenance) {
     return new Response(
