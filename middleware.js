@@ -1,4 +1,4 @@
-import { rewrite } from "@vercel/edge";
+import { rewrite } from "@vercel/functions";
 
 export const config = {
   matcher: "/api"
