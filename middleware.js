@@ -1,4 +1,4 @@
-import { next } from "@vercel/functions";
+import { next, rewrite } from "@vercel/functions";
 
 export const config = {
   matcher: ["/:path*"]
@@ -10,7 +10,7 @@ export default async function middleware(req) {
   if (pathname.startsWith("/api")) {
     // nanti akan ada tambahan untuk arcjet
     console.log("API request detected:", pathname);
-    return;
+    rewrite(new URL(pathname, req.url));
   }
 
   if (pathname === "/") {
@@ -22,6 +22,5 @@ export default async function middleware(req) {
       },
     });
   }
-  console.log("Non-API request detected, proceeding to next middleware.");
   return next();
 }
