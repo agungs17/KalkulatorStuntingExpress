@@ -1,7 +1,7 @@
 import { rewrite } from "@vercel/edge";
 
 export const config = {
-  matcher: "/"
+  matcher: "/api"
 };
 
 export default function middleware(request) {
