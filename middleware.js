@@ -7,7 +7,7 @@ export const config = {
 export default function middleware(request) {
   const url = new URL(request.url);
 
-  if (url.pathname === "/") {
+  if (url.pathname === "/api") {
     return rewrite(new URL("/api", request.url));
   }
 
