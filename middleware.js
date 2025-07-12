@@ -10,6 +10,4 @@ export default function middleware(request) {
   if (url.pathname === "/api") {
     return rewrite(new URL("/api", request.url));
   }
-
-  return;
 }
