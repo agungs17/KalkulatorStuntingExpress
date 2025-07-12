@@ -10,7 +10,7 @@ export default async function middleware(req) {
   if (pathname.startsWith("/api")) {
     // nanti akan ada tambahan untuk arcjet
     console.log("API request detected:", pathname);
-    rewrite(new URL("/api", req.url));
+    return rewrite(new URL("/api", req.url));
   }
 
   if (pathname === "/") {
