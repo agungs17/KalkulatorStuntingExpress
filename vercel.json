@@ -1,10 +1,4 @@
 {
   "version": 2,
-  "regions": ["sin1"],
-  "redirects": [
-    { "source": "/", "destination": "/api", "permanent": true }
-  ],
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
-  ]
+  "regions": ["sin1"]
 }

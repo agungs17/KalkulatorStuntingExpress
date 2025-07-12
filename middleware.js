@@ -1,29 +1,9 @@
-export const config = {
-  matcher: "/api/:path*" // intercept semua /api/*
-};
+import { rewrite } from "@vercel/functions";
 
-export default function middleware(req) {
-  console.log("🔥 Middleware hit:", req.url);
+export default function middleware(request) {
+  const url = new URL(request.url);
 
-  const maintenance = false;
-
-  if (maintenance) {
-    return new Response(
-      JSON.stringify({
-        code: 503,
-        message: "Server sedang maintenance, coba lagi nanti.",
-        data: null,
-        error: "ServiceUnavailable"
-      }),
-      {
-        status: 503,
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
+  if (url.pathname.startsWith("/")) {
+    return rewrite(new URL("/api", request.url));
   }
-
-  // 🟢 biarkan request lanjut
-  return; // <--- ini kunci biar diteruskan
 }
