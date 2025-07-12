@@ -1,20 +1,24 @@
-import { NextResponse } from "@vercel/edge";
+import { next } from "@vercel/functions";
 
 export const config = {
-  matcher: "/api/:path*"
+  matcher: "/api/:path*", // intercept semua path di bawah /api
 };
 
-export default function middleware(request) {
-  const apiKey = request.headers.get("x-api-key");
+export default function middleware(req) {
+  const apiKey = req.headers.get("x-api-key");
 
-  // ✅ Cek API Key dulu
+  // ✅ Cek API Key
   if (apiKey !== process.env.SECRET_API_KEY) {
-    return NextResponse.json(
-      { success: false, message: "Unauthorized" },
-      { status: 401 }
+    return new Response(
+      JSON.stringify({
+        success: false,
+        message: "Unauthorized",
+      }),
+      {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      }
     );
   }
-
-  // ✅ Lolos security, teruskan ke Express
-  return NextResponse.next();
+  return next();
 }
