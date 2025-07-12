@@ -1,4 +1,4 @@
-import { next, rewrite } from "@vercel/functions";
+import { next } from "@vercel/functions";
 // import { Arcjet } from "@arcjet/vercel";
 
 // const arcjet = new Arcjet({
@@ -6,15 +6,16 @@ import { next, rewrite } from "@vercel/functions";
 // });
 
 export const config = {
-  matcher: ["/:path*"]
+  matcher: ["/:path*"] // Intercept semua path
 };
 
 export default async function middleware(req) {
   const { pathname } = new URL(req.url);
 
+  // ✅ Kalau request ke /api → teruskan ke backend
   if (pathname.startsWith("/api")) {
+    // Kalau mau aktifkan Arcjet, uncomment kode di bawah
     // const result = await arcjet.protect(req);
-
     // if (!result.ok) {
     //   return new Response(
     //     JSON.stringify({
@@ -30,10 +31,16 @@ export default async function middleware(req) {
     return next();
   }
 
+  // ✅ Kalau root path (/) → munculin halaman Hello!
   if (pathname === "/") {
-    return rewrite(new URL("/api", req.url));
+    return new Response("<h1>Hello!</h1>", {
+      status: 200,
+      headers: {
+        "Content-Type": "text/html",
+      },
+    });
   }
 
-  // Semua path lain (termasuk /landing) diterusin aja
+  // ✅ Semua path lain (misalnya /landing) diterusin aja
   return next();
 }
