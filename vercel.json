@@ -1,5 +1,4 @@
 {
   "version": 2,
-  "regions": ["sin1"],
-  "public" : true
+  "regions": ["sin1"]
 }
