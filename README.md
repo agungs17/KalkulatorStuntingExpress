@@ -38,11 +38,11 @@ EMAIL_PORT=587
 EMAIL_USER=
 EMAIL_PASSWORD= # EMAIL_PASSWORD using app passwords, if not have app passwords, click here : https://myaccount.google.com/apppasswords
 
-# logflare (Optional)
+# logflare for log (Optional)
 LOGFLARE_SOURCE_TOKEN=
 LOGFLARE_API_KEY=
 
-# Upstash/Redis (Optional)
+# Upstash/Redis for cache (Optional)
 UPSTASH_REDIS_URL=
 UPSTASH_REDIS_TOKEN=
 ```
