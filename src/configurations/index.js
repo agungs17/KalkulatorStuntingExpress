@@ -4,12 +4,6 @@ dotenv.config();
 const defaultPort = process.env.PORT || 3000;
 const nodeEnv = process.env.NODE_ENV || "dev";
 
-const forceLogflare = false; // Set to true to force Logflare usage in development mode
-const logFlareEnv = nodeEnv === "dev" ? forceLogflare : true;
-
-const forceUpstashRedis = false; // Set to true to force Upstash/Redis usage in development mode
-const forceUpstashRedishEnv = nodeEnv === "dev" ? forceUpstashRedis : true;
-
 const config = Object.freeze({
   port: defaultPort,
   nodeEnv,
@@ -26,7 +20,7 @@ const config = Object.freeze({
     service : process.env.EMAIL_SERVICE,
     email : process.env.EMAIL_USER,
     password : process.env.EMAIL_PASSWORD,
-    useNodemailer : !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && process.env.EMAIL_HOST && process.env.EMAIL_SERVICE)
+    useNodemailer : !!(process.env.EMAIL_USER && process.env.EMAIL_PASSWORD && process.env.EMAIL_HOST && process.env.EMAIL_SERVICE && process.env.EMAIL_ACTIVED === "true")
   },
   jwt : {
     secret : process.env.JWT_SECRET,
@@ -38,12 +32,12 @@ const config = Object.freeze({
   logflare : {
     sourceToken: process.env.LOGFLARE_SOURCE_TOKEN,
     apiKey: process.env.LOGFLARE_API_KEY,
-    useLogflare: !!(process.env.LOGFLARE_API_KEY && process.env.LOGFLARE_SOURCE_TOKEN && logFlareEnv)
+    useLogflare: !!(process.env.LOGFLARE_API_KEY && process.env.LOGFLARE_SOURCE_TOKEN && process.env.LOGFLARE_ACTIVED === "true")
   },
   upstashRedis : {
     url: process.env.UPSTASH_REDIS_URL,
     token: process.env.UPSTASH_REDIS_TOKEN,
-    useUpstashRedis : !!(process.env.UPSTASH_REDIS_URL && process.env.UPSTASH_REDIS_TOKEN && forceUpstashRedishEnv)
+    useUpstashRedis : !!(process.env.UPSTASH_REDIS_URL && process.env.UPSTASH_REDIS_TOKEN && process.env.UPSTASH_REDIS_ACTIVED === "true")
   }
 });
 

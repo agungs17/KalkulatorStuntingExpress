@@ -37,14 +37,17 @@ EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USER=
 EMAIL_PASSWORD= # EMAIL_PASSWORD using app passwords, if not have app passwords, click here : https://myaccount.google.com/apppasswords
+EMAIL_ACTIVED=true
 
 # logflare for log (Optional)
 LOGFLARE_SOURCE_TOKEN=
 LOGFLARE_API_KEY=
+LOGFLARE_ACTIVED=false
 
 # Upstash/Redis for cache (Optional)
 UPSTASH_REDIS_URL=
 UPSTASH_REDIS_TOKEN=
+UPSTASH_REDIS_ACTIVED=false
 ```
 
 ## Step 3: Run project
