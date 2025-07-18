@@ -13,6 +13,7 @@ import user from "./routes/user";
 import team from "./routes/team";
 import children from "./routes/children";
 import historyChildren from "./routes/historyChildren";
+import compression from "compression";
 
 const app = express();
 const apiRouter = express.Router();
@@ -35,9 +36,20 @@ app.use(cors({
     else return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Bulk-Token"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Bulk-Token", "X-No-Compression"]
 }));
 app.use(express.json());
+app.use(compression({
+  threshold: 312, // only compress response bodies larger than 312 bytes
+  filter: (req, res) => {
+    // Skip compression if 'x-no-compression' header is present
+    // Small responses are usually not worth compressing,
+    // as the compression overhead may outweigh the benefits
+    if (req.headers["x-no-compression"]) return false;
+
+    return compression.filter(req, res);
+  }
+}));
 
 if (config.nodeEnv === "dev") app.get("/", (_, res) => res.redirect("/api"));
 
