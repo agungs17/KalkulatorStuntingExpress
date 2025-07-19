@@ -10,7 +10,7 @@ const workerInstance = async ({ req, path, body }) => {
   const baseUrl = getBaseUrl(req);
   return await qstash.publish({
     url: `${baseUrl}${path}`,
-    body,
+    body: JSON.stringify(body),
     headers: {
       "Content-Type": "application/json"
     },
