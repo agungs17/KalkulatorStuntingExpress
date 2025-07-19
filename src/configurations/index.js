@@ -8,10 +8,10 @@ const config = Object.freeze({
   port: defaultPort,
   nodeEnv,
   corsOrigin : nodeEnv === "dev" ? [`http://localhost:${defaultPort}`] : process.env.CORS_ORIGIN?.split(",") || [],
+  secretKey: process.env.SECRET_KEY,
   supabase: {
     url: process.env.SUPABASE_URL,
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    bulkToken: process.env.SUPABASE_BULK_TOKEN,
     useSupabase : !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY)
   },
   nodemailer : {

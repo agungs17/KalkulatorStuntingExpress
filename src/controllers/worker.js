@@ -6,9 +6,9 @@ import { getHeaders } from "../helpers/header";
 import { sendEmailRaw } from "../services/nodemailerInstance";
 
 export const bulkController = async (req, res) => {
-  const {bulkToken : token} = getHeaders(req);
+  const {secretKey} = getHeaders(req);
 
-  if (token !== config.supabase.bulkToken || !config.supabase.bulkToken) return formatResponse({ req, res, code: 403, message: "Kamu tidak punya akses.", data: null, error: "Forbidden" });
+  if (secretKey !== config.secretKey || !config.secretKey) return formatResponse({ req, res, code: 403, message: "Kamu tidak punya akses.", data: null, error: "Forbidden" });
 
   try {
     const beratRaw = await getFilePublic("json", "berat_table.json");
@@ -34,6 +34,10 @@ export const bulkController = async (req, res) => {
 };
 
 export const sendEmailController = async (req, res) => {
+  const {secretKey} = getHeaders(req);
+
+  if (secretKey !== config.secretKey || !config.secretKey) return formatResponse({ req, res, code: 403, message: "Kamu tidak punya akses.", data: null, error: "Forbidden" });
+
   const { to, subject, html } = req.body;
 
   if (!to || !subject || !html) return formatResponse({ req, res, code: 400, message: "to, subject, html kosong", error: "Bad Request" });

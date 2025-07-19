@@ -12,7 +12,8 @@ const workerInstance = async ({ req, path, body }) => {
     url: `${baseUrl}${path}`,
     body: JSON.stringify(body),
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
+      "X-Secret-Key" : config.secretKey
     },
   });
 };

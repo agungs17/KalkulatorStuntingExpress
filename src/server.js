@@ -36,7 +36,7 @@ app.use(cors({
     else return callback(new Error("Not allowed by CORS"));
   },
   methods: ["GET", "POST", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization", "X-Bulk-Token"]
+  allowedHeaders: ["Content-Type", "Authorization", "X-Secret-Key"]
 }));
 app.use(express.json());
 app.use(compression({
