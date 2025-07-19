@@ -2,13 +2,13 @@ import { Client } from "@upstash/qstash";
 import config from "../configurations";
 import { getBaseUrl } from "../helpers/url";
 
-const qstash = new Client({
+const worker = new Client({
   token: config.upstashQStash.token
 });
 
 const workerInstance = async ({ req, path, body }) => {
   const baseUrl = getBaseUrl(req);
-  return await qstash.publish({
+  return await worker.publish({
     url: `${baseUrl}${path}`,
     body: JSON.stringify(body),
     headers: {
