@@ -75,7 +75,7 @@ export const registerController = async (req, res) => {
           ...EMAIL_TYPE.verificationEmail
         });
 
-        await sendEmail({ to: emailUser, subject: "Verifikasi Email Anda", html });
+        await sendEmail({ req, to: emailUser, subject: "Verifikasi Email Anda", html });
         message += " Silakan verifikasi email Anda!";
       } else {
         message += " Gagal kirim email verifikasi, silakan login dan kirim ulang email verfikasi.";

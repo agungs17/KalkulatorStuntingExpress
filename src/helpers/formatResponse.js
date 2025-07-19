@@ -31,17 +31,8 @@ const formatResponse = async({
   };
 
   if (config.logging) console.log(`[${path}]\r\n`, result);
-  if (config.logflare.useLogflare) {
-    const host = req?.headers?.host || "UnknownHost";
-    const fullPath = `${req.protocol || "http"}://${host}${path}`;
-    const header = req?.headers || {};
-    await logflareInstance({
-      event_message : fullPath,
-      metadata : {
-        header,
-        result
-      }});
-  }
+
+  await logflareInstance(req, result);
 
   return res.status(code).json(result);
 };

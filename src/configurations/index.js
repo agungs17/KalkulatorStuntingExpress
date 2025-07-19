@@ -38,6 +38,10 @@ const config = Object.freeze({
     url: process.env.UPSTASH_REDIS_URL,
     token: process.env.UPSTASH_REDIS_TOKEN,
     useUpstashRedis : !!(process.env.UPSTASH_REDIS_URL && process.env.UPSTASH_REDIS_TOKEN && process.env.UPSTASH_REDIS_ACTIVED === "true")
+  },
+  upstashQStash : {
+    token: process.env.UPSTASH_QSTASH_TOKEN,
+    useUpstashQStash : !!(process.env.UPSTASH_QSTASH_TOKEN && process.env.UPSTASH_QSTASH_ACTIVED === "true" && nodeEnv !== "dev")
   }
 });
 

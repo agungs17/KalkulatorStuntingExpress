@@ -1,10 +1,17 @@
 import config from "../configurations";
+import { getBaseUrl } from "../helpers/url";
 
-const logflareInstance = async (logData) => {
+const logflareInstance = async (req, result) => {
+  if (config.logflare.useLogflare) return;
+
+  const path = req?.originalUrl || req?.url || "UnknownPath";
+  const fullPath = getBaseUrl(req) + path;
+  const header = req?.headers || {};
+
   try {
     const payload = {
-      event_message: logData.event_message || "No path provided",
-      metadata: { ...logData.metadata } || {},
+      event_message: fullPath || "No path provided",
+      metadata: { header, result } || {},
     };
 
     const res = await fetch(`https://api.logflare.app/logs?source=${config.logflare.sourceToken}`, {

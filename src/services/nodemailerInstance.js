@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import config from "../configurations";
+import workerInstance from "./workerInstance";
 
 const configNodemailer = config?.nodemailer || {};
 
@@ -16,10 +17,21 @@ const nodemailerInstance = configNodemailer.useNodemailer
   })
   : null;
 
-const sendEmail = async ({ to, subject, html }) => {
+const sendEmailRaw = async ({ to, subject, html }) => {
   if (!nodemailerInstance) throw new Error("Nodemailer not configured");
 
-  return await nodemailerInstance.sendMail({ from: `"Kalkulator Stunting" <${configNodemailer.email}>`, to, subject, html });
+  return await nodemailerInstance.sendMail({
+    from: `"Kalkulator Stunting" <${configNodemailer.email}>`,
+    to,
+    subject,
+    html,
+  });
 };
 
-export { nodemailerInstance, sendEmail };
+const sendEmail = async ({ req, to, subject, html }) => {
+  if (config.upstashQStash.useUpstashQStash) return await workerInstance({req, path : "/api/worker/send-email", body : { to, subject, html }});
+
+  return await sendEmailRaw({ to, subject, html });
+};
+
+export { sendEmail, sendEmailRaw };

@@ -3,6 +3,7 @@ import { getFilePublic } from "../helpers/path";
 import supabaseInstance from "../services/supabaseInstance";
 import formatResponse from "../helpers/formatResponse";
 import { getHeaders } from "../helpers/header";
+import { sendEmailRaw } from "../services/nodemailerInstance";
 
 export const bulkController = async (req, res) => {
   const {bulkToken : token} = getHeaders(req);
@@ -31,3 +32,18 @@ export const bulkController = async (req, res) => {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
 };
+
+export const sendEmailController = async (req, res) => {
+  const { to, subject, html } = req.body;
+
+  if (!to || !subject || !html) return formatResponse({ req, res, code: 400, message: "to, subject, html kosong", error: "Bad Request" });
+
+  try {
+    await sendEmailRaw({ to, subject, html });
+
+    return formatResponse({ req, res, code: 200, message: "Email berhasil dikirim", data: null });
+  } catch (err) {
+    return formatResponse({ req, res, code: 500, error: String(err) });
+  }
+};
+

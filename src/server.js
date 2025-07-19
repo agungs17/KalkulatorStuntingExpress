@@ -1,7 +1,6 @@
 import express from "express";
 import config from "./configurations";
 import formatResponse from "./helpers/formatResponse";
-import { bulkController } from "./controllers/bulk";
 
 import helmet from "helmet";
 import cors from "cors";
@@ -14,6 +13,7 @@ import team from "./routes/team";
 import children from "./routes/children";
 import historyChildren from "./routes/historyChildren";
 import compression from "compression";
+import worker from "./routes/worker";
 
 const app = express();
 const apiRouter = express.Router();
@@ -60,8 +60,8 @@ apiRouter.use("/team", team);
 apiRouter.use("/invite", invite);
 // history children
 apiRouter.use("/history-children", historyChildren);
-// bulk
-apiRouter.use("/bulk", bulkController);
+// worker
+apiRouter.use("/worker", worker);
 
 // mount apiRouter /api
 app.use("/api", apiRouter);

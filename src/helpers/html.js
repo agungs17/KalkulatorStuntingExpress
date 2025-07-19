@@ -3,6 +3,7 @@ import juice from "juice";
 import { minify } from "html-minifier-terser";
 import { getFilePublic } from "./path";
 import { eachFirstCapitalWord } from "./string";
+import { getBaseUrl } from "./url";
 
 const minifyHtml = (html) => {
   const inlinedHtml = juice(html);
@@ -29,7 +30,7 @@ const getHtml = async (nameFile, propsHtml = {}) => {
   const date = dayjs();
 
   let html = await getFilePublic("html", nameFile);
-  const baseUrl = `${req.protocol}://${req.get("host")}`;
+  const baseUrl = getBaseUrl(req);
 
   html = html?.replace?.(/{{userName}}/g, eachFirstCapitalWord(userName));
   html = html?.replace?.(/{{header}}/g, header);

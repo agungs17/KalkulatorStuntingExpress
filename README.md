@@ -48,6 +48,10 @@ LOGFLARE_ACTIVED=false
 UPSTASH_REDIS_URL=
 UPSTASH_REDIS_TOKEN=
 UPSTASH_REDIS_ACTIVED=false
+
+# Upstash/QStash for worker (Optional)
+UPSTASH_QSTASH_TOKEN=
+UPSTASH_QSTASH_ACTIVED= # not supported in dev mode (localhost)
 ```
 
 ## Step 3: Run project
