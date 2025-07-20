@@ -1,5 +1,7 @@
+import CACHE_KEYS from "../constants/cache";
 import formatResponse from "../helpers/formatResponse";
 import { eachFirstCapitalWord } from "../helpers/string";
+import { deleteCache } from "../services/cacheInstance";
 import supabaseInstance from "../services/supabaseInstance";
 
 export const addOrEditChildrenController = async (req, res) => {
@@ -16,6 +18,8 @@ export const addOrEditChildrenController = async (req, res) => {
         .insert({ id_user : userId, nik, name : eachFirstCapitalWord(name), date_of_birth, gender });
 
       if (error) return formatResponse({ req, res, code: 400, message: "Gagal menambahkan data anak.", error });
+
+      await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
       return formatResponse({ req, res, code: 200, message: "Berhasil menambahkan data anak." });
     }
 
@@ -36,6 +40,8 @@ export const addOrEditChildrenController = async (req, res) => {
       .eq("id_user", userId);
 
     if (error) return formatResponse({ req, res, code: 400, message: "Gagal mengupdate data anak.", error });
+
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return formatResponse({ req, res, code: 200, message: "Berhasil mengupdate data anak." });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
@@ -66,6 +72,7 @@ export const deleteChildrenController = async (req, res) => {
 
     if (deleteChildError) throw formatResponse({ req, res, code: 500, error: deleteChildError });
 
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return formatResponse({ req, res, code: 200, message: "Data anak berhasil dihapus.", data: null, });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });

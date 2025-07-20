@@ -1,5 +1,7 @@
+import CACHE_KEYS from "../constants/cache";
 import { ROLE_TYPE } from "../constants/type";
 import formatResponse from "../helpers/formatResponse";
+import { deleteCache } from "../services/cacheInstance";
 import supabaseInstance from "../services/supabaseInstance";
 
 export const createTeamController = async (req, res) => {
@@ -46,6 +48,7 @@ export const createTeamController = async (req, res) => {
       }
     }
 
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return formatResponse({ req, res, code, error, message });
   } catch (err) {
     return formatResponse({
@@ -91,6 +94,7 @@ export const addTeamController = async (req, res) => {
 
     if (updateErr) return formatResponse({ req, res, code: 500, message: "Gagal menambahkan user ke dalam tim.", error: updateErr });
 
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return formatResponse({ req, res, code: 200, message: "User berhasil ditambahkan ke tim.", data: null });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
@@ -130,6 +134,7 @@ export const changeTeamLeaderController = async (req, res) => {
 
     if (updateError) return formatResponse({ req, res, code: 500, message: "Gagal mengganti ketua tim." });
 
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return formatResponse({ req, res, code: 200, message: `Berhasil menjadikan ${targetUser.name} sebagai ketua tim.` });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err) });
@@ -190,6 +195,7 @@ export const leaveTeamController = async (req, res) => {
 
       if (leaveError)  return formatResponse({ req, res, code: 500, error: leaveError, message: "Gagal keluar dari tim." });
 
+      await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
       return formatResponse({ req, res, code: 200, data: null, message: "Berhasil keluar dari tim." });
     }
   } catch (err) {
@@ -229,6 +235,7 @@ export const deleteTeamController = async (req, res) => {
       }
     }
 
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return formatResponse({ req, res, code, message, error });
   } catch (err) {
     return formatResponse({ req, res, code: 500, error: String(err), });

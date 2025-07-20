@@ -1,6 +1,8 @@
 import supabaseInstance from "../services/supabaseInstance";
 import { getHtml } from "../helpers/html";
 import { JWT_TYPE } from "../constants/type";
+import { deleteCache } from "../services/cacheInstance";
+import CACHE_KEYS from "../constants/cache";
 
 export const verifyEmailController = async(req, res) => {
   const userId = req?.userId;
@@ -31,6 +33,7 @@ export const verifyEmailController = async(req, res) => {
         .eq("type", JWT_TYPE.verificationEmail);
     }
 
+    await deleteCache(CACHE_KEYS.GET_PROFILE(userId));
     return res.status(200).send("Email berhasil diverifikasi. Terima kasih!");
   } catch (err) {
     return res.status(500).send("Sepertinya ada yang tidak beres.");
