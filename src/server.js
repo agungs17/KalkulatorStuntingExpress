@@ -1,10 +1,19 @@
 import express from "express";
 import config from "./configurations";
 import formatResponse from "./helpers/formatResponse";
+
 import helmet from "helmet";
 import cors from "cors";
+
+import auth from "./routes/auth";
+import landing from "./routes/landing";
+import invite from "./routes/invite";
+import user from "./routes/user";
+import team from "./routes/team";
+import children from "./routes/children";
+import historyChildren from "./routes/historyChildren";
 import compression from "compression";
-import { createLazyRouter } from "express-lazy-router";
+import worker from "./routes/worker";
 
 const app = express();
 const apiRouter = express.Router();
@@ -33,9 +42,6 @@ app.use(express.json());
 app.use(compression({
   threshold: 312, // only compress response bodies larger than 312 bytes
 }));
-const lazy = createLazyRouter({
-  preload : config.nodeEnv === "prod"
-});
 
 if (config.nodeEnv === "dev") app.get("/", (_, res) => res.redirect("/api"));
 
@@ -43,25 +49,25 @@ apiRouter.get("/", (req, res) => formatResponse({ req, res, message: "API is run
 
 // with /api (apiRouter.use)
 // auth
-apiRouter.use("/auth", lazy(() => import("./routes/auth.js")));
+apiRouter.use("/auth", auth);
 // user
-apiRouter.use("/user", lazy(() => import("./routes/user.js")));
+apiRouter.use("/user", user);
 // children
-apiRouter.use("/children", lazy(() => import("./routes/children.js")));
+apiRouter.use("/children", children);
 // team
-apiRouter.use("/team", lazy(() => import("./routes/team.js")));
+apiRouter.use("/team", team);
 // invite
-apiRouter.use("/invite", lazy(() => import("./routes/invite.js")));
+apiRouter.use("/invite", invite);
 // history children
-apiRouter.use("/history-children", lazy(() => import("./routes/historyChildren.js")));
+apiRouter.use("/history-children", historyChildren);
 // worker
-apiRouter.use("/worker", lazy(() => import("./routes/worker.js")));
+apiRouter.use("/worker", worker);
 
 // mount apiRouter /api
 app.use("/api", apiRouter);
 
 // without /api (app.use)
 // landing
-app.use("/landing", lazy(() => import("./routes/landing.js")));
+app.use("/landing", landing);
 
 export default app;

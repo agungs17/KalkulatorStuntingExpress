@@ -33,7 +33,6 @@
     "dayjs": "^1.11.13",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "express-lazy-router": "^1.0.6",
     "express-rate-limit": "^5.5.1",
     "helmet": "^8.1.0",
     "html-minifier-terser": "^7.2.0",
