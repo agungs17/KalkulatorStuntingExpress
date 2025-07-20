@@ -29,7 +29,16 @@ const sendEmailRaw = async ({ to, subject, html }) => {
 };
 
 const sendEmail = async ({ req, to, subject, html }) => {
-  if (config.upstashQStash.useUpstashQStash) return await workerInstance({req, path : "/api/worker/send-email", body : { to, subject, html }});
+  if (config.upstashQStash.useUpstashQStash) {
+    return await workerInstance({
+      req,
+      path: "/api/worker/send-email",
+      body: { to, subject, html },
+      onFailed: async() =>  {
+        return await sendEmailRaw({ to, subject, html });
+      }
+    });
+  }
 
   return await sendEmailRaw({ to, subject, html });
 };
