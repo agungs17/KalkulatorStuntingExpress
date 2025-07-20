@@ -2,7 +2,7 @@ import config from "../configurations";
 import { getBaseUrl } from "../helpers/url";
 
 const logflareInstance = async (req, result) => {
-  if (config.logflare.useLogflare) return;
+  if (!config.logflare.useLogflare) return;
 
   const path = req?.originalUrl || req?.url || "UnknownPath";
   const fullPath = getBaseUrl(req) + path;
