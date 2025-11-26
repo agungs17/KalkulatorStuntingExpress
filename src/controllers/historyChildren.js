@@ -1,6 +1,9 @@
 import formatResponse from "../helpers/formatResponse";
 import { truncateDecimal } from "../helpers/number";
 import supabaseInstance from "../services/supabaseInstance";
+import { getFilePublic } from "../helpers/path";
+import dayjs from "../helpers/dayjsLocale";
+import { calculateZScore, getZScoreLabel } from "../helpers/zScore";
 
 export const addOrEditChildrenController = async (req, res) => {
   const userId = req.userId;
@@ -12,6 +15,46 @@ export const addOrEditChildrenController = async (req, res) => {
   const isInsert = id === undefined || id === null || id === "";
 
   try {
+    const { data: childData, error: childError } = await supabaseInstance
+      .from("childs_table")
+      .select("date_birth")
+      .eq("id", id_children)
+      .single();
+
+    if (childError || !childData) {
+      return formatResponse({
+        req,
+        res,
+        code: 404,
+        message: "Data anak tidak ditemukan.",
+        error: childError || "Child not found",
+      });
+    }
+
+    const dateBirth = dayjs(childData.date_birth).startOf("day");
+    const dateCheck = dayjs(date_check).startOf("day");
+
+    // Tidak boleh sebelum lahir
+    if (dateCheck.isBefore(dateBirth)) {
+      return formatResponse({
+        req,
+        res,
+        code: 400,
+        message: "Tanggal pengecekan tidak boleh sebelum tanggal lahir.",
+      });
+    }
+
+    // Maksimal 5 tahun dari tanggal lahir
+    const maxDate = dateBirth.add(5, "year");
+    if (dateCheck.isAfter(maxDate)) {
+      return formatResponse({
+        req,
+        res,
+        code: 400,
+        message: "Tanggal pengecekan maksimal 5 tahun setelah tanggal lahir.",
+      });
+    }
+
     const { data: userData, error: userError } = await supabaseInstance
       .from("users_table")
       .select("id_team")
@@ -101,3 +144,155 @@ export const deleteHistoryChildrenController = async(req, res) => {
     return formatResponse({ req, res, code: 500, error: String(err) });
   }
 };
+
+export const getChildrenController = async (req, res) => {
+  const userId = req.userId;
+  const { children_id } = req.query;
+
+  const calculateCurrentAge = (dateOfBirth, checkDate = null) => {
+    const birthDate = dayjs(dateOfBirth);
+    const now = checkDate ? dayjs(checkDate) : dayjs();
+    const years = now.diff(birthDate, "year");
+    const months = now.diff(birthDate, "month") % 12;
+    return `${years} Tahun ${months} Bulan`;
+  };
+
+  try {
+    const { data: children, error: childError } = await supabaseInstance
+      .from("childs_table")
+      .select("id, date_of_birth, gender, name")
+      .eq("id_user", userId);
+
+    if (childError) {
+      return formatResponse({
+        req, res,
+        code: 500,
+        message: "Gagal mendapatkan data anak.",
+        error: childError
+      });
+    }
+
+    if (!children || children.length === 0) {
+      return formatResponse({
+        req, res,
+        code: 200,
+        message: "Berhasil mendapatkan history anak.",
+        data: [],
+        error: null
+      });
+    }
+
+    let filteredChildren = children;
+    if (children_id) {
+      filteredChildren = children.filter(c => c.id === children_id);
+
+      if (filteredChildren.length === 0) {
+        return formatResponse({
+          req, res,
+          code: 404,
+          message: "Anak tidak ditemukan atau tidak dimiliki oleh user.",
+          error: null
+        });
+      }
+    }
+
+    const childIds = filteredChildren.map(c => c.id);
+
+    const { data: histories, error: historyError } = await supabaseInstance
+      .from("histories_child_table")
+      .select("id, id_children, id_team, height, weight, date_check")
+      .in("id_children", childIds);
+
+    if (historyError) {
+      return formatResponse({
+        req, res,
+        code: 500,
+        message: "Gagal mendapatkan data histori anak.",
+        error: historyError
+      });
+    }
+
+    const beratRaw = await getFilePublic("json", "berat_table.json");
+    const tinggiRaw = await getFilePublic("json", "tinggi_table.json");
+    const tinggiVsBeratRaw = await getFilePublic("json", "tinggivsberat_table.json");
+
+    const beratTable = JSON.parse(beratRaw);
+    const tinggiTable = JSON.parse(tinggiRaw);
+    const tinggivsberatTable = JSON.parse(tinggiVsBeratRaw);
+
+    const result = histories.map(h => {
+      const child = children.find(c => c.id === h.id_children);
+
+      const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
+
+      const weightRef = beratTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
+      const heightRef = tinggiTable.find( item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths );
+
+      const roundedHeight = Math.round(Number(h.height));
+      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "anak") && item.tinggi === roundedHeight);
+
+      const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
+      const zScoreHeight = calculateZScore(Number(h.height), heightRef);
+      const zScoreWeightForHeight = calculateZScore(Number(h.weight), weightForHeightRef);
+
+      return {
+        children_name: child.name,
+        id: h.id,
+        id_children: h.id_children,
+        id_team: h.id_team || "",
+        age_in_months: ageMonths,
+        age_label: calculateCurrentAge(child.date_of_birth, h.date_check),
+        weight: Number(h.weight),
+        height: Number(h.height),
+        date_check: h.date_check,
+        z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(1)}` : null,
+        z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(1)}` : null,
+        z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(1)}` : null,
+        z_score_weight_label: getZScoreLabel(zScoreWeight),
+        z_score_height_label: getZScoreLabel(zScoreHeight),
+        z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
+      };
+    });
+
+    result.sort((a, b) => a.age_in_months - b.age_in_months);
+    const lastData = result.length > 0 ? result[result.length - 1] : null;
+
+    if (!children_id) {
+      return formatResponse({
+        req, res,
+        code: 200,
+        message: "Berhasil mendapatkan semua history anak.",
+        data: result,
+        error: null
+      });
+    }
+
+    return formatResponse({
+      req, res,
+      code: 200,
+      message: `Berhasil mendapatkan history anak ${filteredChildren[0]?.name}.`,
+      data: {
+        children_name: filteredChildren[0]?.name || "",
+        age_label: filteredChildren?.[0]?.date_of_birth ? calculateCurrentAge(filteredChildren[0].date_of_birth) : "",
+        date_of_birth : filteredChildren?.[0]?.date_of_birth || "",
+        last_z_score_weight: lastData?.z_score_weight || "",
+        last_z_score_weight_label: lastData?.z_score_weight_label || "",
+        last_z_score_height: lastData?.z_score_height || "",
+        last_z_score_height_label: lastData?.z_score_height_label || "",
+        last_z_score_heightvsweight: lastData?.z_score_heightvsweight || "",
+        last_z_score_heightvsweight_label: lastData?.z_score_heightvsweight_label || "",
+        milestones: result
+      },
+      error: null
+    });
+
+  } catch (err) {
+    return formatResponse({
+      req, res,
+      code: 500,
+      message: "Terjadi kesalahan server.",
+      error: String(err)
+    });
+  }
+};
+
