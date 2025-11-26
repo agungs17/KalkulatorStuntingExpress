@@ -14,7 +14,7 @@ const logflareInstance = async (req, result) => {
   try {
     const payload = {
       event_message: fullPath || "No path provided",
-      metadata: { header, body, result } || {},
+      metadata: { header, body, result } ?? {},
     };
 
     const res = await fetch(`https://api.logflare.app/logs?source=${config.logflare.sourceToken}`, {
