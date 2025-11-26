@@ -17,7 +17,7 @@ export const addOrEditChildrenController = async (req, res) => {
   try {
     const { data: childData, error: childError } = await supabaseInstance
       .from("childs_table")
-      .select("date_birth")
+      .select("date_of_birth")
       .eq("id", id_children)
       .single();
 
@@ -31,7 +31,7 @@ export const addOrEditChildrenController = async (req, res) => {
       });
     }
 
-    const dateBirth = dayjs(childData.date_birth).startOf("day");
+    const dateBirth = dayjs(childData.date_of_birth).startOf("day");
     const dateCheck = dayjs(date_check).startOf("day");
 
     // Tidak boleh sebelum lahir
