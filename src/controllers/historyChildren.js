@@ -147,7 +147,7 @@ export const deleteHistoryChildrenController = async(req, res) => {
 
 export const getChildrenController = async (req, res) => {
   const userId = req.userId;
-  const { children_id } = req.query;
+  const { id_children } = req.query;
 
   const calculateCurrentAge = (dateOfBirth, checkDate = null) => {
     const birthDate = dayjs(dateOfBirth);
@@ -183,8 +183,8 @@ export const getChildrenController = async (req, res) => {
     }
 
     let filteredChildren = children;
-    if (children_id) {
-      filteredChildren = children.filter(c => c.id === children_id);
+    if (id_children) {
+      filteredChildren = children.filter(c => c.id === id_children);
 
       if (filteredChildren.length === 0) {
         return formatResponse({
@@ -257,7 +257,7 @@ export const getChildrenController = async (req, res) => {
     result.sort((a, b) => a.age_in_months - b.age_in_months);
     const lastData = result.length > 0 ? result[result.length - 1] : null;
 
-    if (!children_id) {
+    if (!id_children) {
       return formatResponse({
         req, res,
         code: 200,
