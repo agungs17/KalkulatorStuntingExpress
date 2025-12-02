@@ -175,21 +175,44 @@ export const getChildrenController = async (req, res) => {
 
     const isStaff = userData.role === "staff";
     const currentTeam = userData.id_team;
-    let childrenQuery = supabaseInstance
-      .from("childs_table")
-      .select("id, date_of_birth, gender, name");
+
+    let children = [];
+    let childError = null;
 
     if (isStaff) {
-      childrenQuery = childrenQuery.in(
-        "id_user",
-        supabaseInstance
-          .from("users_table")
-          .select("id")
-          .eq("id_team", currentTeam)
-      );
-    } else childrenQuery = childrenQuery.eq("id_user", userId);
+      const { data: teamUsers, error: teamUserError } = await supabaseInstance
+        .from("users_table")
+        .select("id")
+        .eq("id_team", currentTeam);
 
-    const { data: children, error: childError } = await childrenQuery;
+      if (teamUserError) {
+        return formatResponse({
+          req, res,
+          code: 500,
+          message: "Gagal mendapatkan anggota tim.",
+          error: teamUserError
+        });
+      }
+
+      const userIds = teamUsers.map(u => u.id);
+
+      const { data, error } = await supabaseInstance
+        .from("childs_table")
+        .select("id, date_of_birth, gender, name")
+        .in("id_user", userIds);
+
+      children = data;
+      childError = error;
+
+    } else {
+      const { data, error } = await supabaseInstance
+        .from("childs_table")
+        .select("id, date_of_birth, gender, name")
+        .eq("id_user", userId);
+
+      children = data;
+      childError = error;
+    }
 
     if (childError) {
       return formatResponse({
@@ -225,14 +248,27 @@ export const getChildrenController = async (req, res) => {
     }
 
     const childIds = filteredChildren.map(c => c.id);
-    let historiesQuery = supabaseInstance
-      .from("histories_child_table")
-      .select("id, id_children, id_team, height, weight, date_check");
+    let histories = [];
+    let historyError = null;
 
-    if (isStaff) historiesQuery = historiesQuery.eq("id_team", currentTeam);
-    else historiesQuery = historiesQuery.in("id_children", childIds);
+    if (isStaff) {
+      const { data, error } = await supabaseInstance
+        .from("histories_child_table")
+        .select("id, id_children, id_team, height, weight, date_check")
+        .eq("id_team", currentTeam);
 
-    const { data: histories, error: historyError } = await historiesQuery;
+      histories = data;
+      historyError = error;
+
+    } else {
+      const { data, error } = await supabaseInstance
+        .from("histories_child_table")
+        .select("id, id_children, id_team, height, weight, date_check")
+        .in("id_children", childIds);
+
+      histories = data;
+      historyError = error;
+    }
 
     if (historyError) {
       return formatResponse({
@@ -251,40 +287,41 @@ export const getChildrenController = async (req, res) => {
     const tinggiTable = JSON.parse(tinggiRaw);
     const tinggivsberatTable = JSON.parse(tinggiVsBeratRaw);
 
-    const result = histories.map(h => {
-      const child = children.find(c => c.id === h.id_children);
-      if (!child) return null;
+    const result = histories
+      .map(h => {
+        const child = children.find(c => c.id === h.id_children);
+        if (!child) return null;
 
-      const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
+        const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
 
-      const weightRef = beratTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
-      const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
+        const weightRef = beratTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
+        const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
 
-      const roundedHeight = Math.round(Number(h.height));
-      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "anak") && item.tinggi === roundedHeight);
+        const roundedHeight = Math.round(Number(h.height));
+        const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "anak") && item.tinggi === roundedHeight);
 
-      const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
-      const zScoreHeight = calculateZScore(Number(h.height), heightRef);
-      const zScoreWeightForHeight = calculateZScore(Number(h.weight), weightForHeightRef);
+        const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
+        const zScoreHeight = calculateZScore(Number(h.height), heightRef);
+        const zScoreWeightForHeight = calculateZScore(Number(h.weight), weightForHeightRef);
 
-      return {
-        children_name: child.name,
-        id: h.id,
-        id_children: h.id_children,
-        id_team: h.id_team || "",
-        age_in_months: ageMonths,
-        age_label: calculateCurrentAge(child.date_of_birth, h.date_check),
-        weight: Number(h.weight),
-        height: Number(h.height),
-        date_check: h.date_check,
-        z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(1)}` : null,
-        z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(1)}` : null,
-        z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(1)}` : null,
-        z_score_weight_label: getZScoreLabel(zScoreWeight),
-        z_score_height_label: getZScoreLabel(zScoreHeight),
-        z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
-      };
-    }).filter(Boolean);
+        return {
+          children_name: child.name,
+          id: h.id,
+          id_children: h.id_children,
+          id_team: h.id_team || "",
+          age_in_months: ageMonths,
+          age_label: calculateCurrentAge(child.date_of_birth, h.date_check),
+          weight: Number(h.weight),
+          height: Number(h.height),
+          date_check: h.date_check,
+          z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(1)}` : null,
+          z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(1)}` : null,
+          z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(1)}` : null,
+          z_score_weight_label: getZScoreLabel(zScoreWeight),
+          z_score_height_label: getZScoreLabel(zScoreHeight),
+          z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
+        };
+      }).filter(Boolean);
 
     result.sort((a, b) => a.age_in_months - b.age_in_months);
     const lastData = result[result.length - 1] || null;
@@ -306,7 +343,7 @@ export const getChildrenController = async (req, res) => {
       data: {
         children_name: filteredChildren[0]?.name || "",
         age_label: filteredChildren?.[0]?.date_of_birth ? calculateCurrentAge(filteredChildren[0].date_of_birth) : "",
-        date_of_birth : filteredChildren?.[0]?.date_of_birth || "",
+        date_of_birth: filteredChildren?.[0]?.date_of_birth || "",
         last_z_score_weight: lastData?.z_score_weight || "",
         last_z_score_weight_label: lastData?.z_score_weight_label || "",
         last_z_score_height: lastData?.z_score_height || "",
