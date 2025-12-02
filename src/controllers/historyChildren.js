@@ -158,139 +158,82 @@ export const getChildrenController = async (req, res) => {
   };
 
   try {
-    const { data: userData, error: userErr } = await supabaseInstance
+    const { data: userData, error: userError } = await supabaseInstance
       .from("users_table")
       .select("role, id_team")
       .eq("id", userId)
       .single();
 
-    if (userErr || !userData) {
-      return formatResponse({
-        req, res,
-        code: 403,
-        message: "User tidak ditemukan.",
-        error: userErr
-      });
-    }
-
-    const isStaff = userData.role === "staff";
-    const currentTeam = userData.id_team;
-
-    let children = [];
-    let childError = null;
-
-    if (isStaff) {
-      const { data: teamUsers, error: teamUserError } = await supabaseInstance
-        .from("users_table")
-        .select("id")
-        .eq("id_team", currentTeam);
-
-      if (teamUserError) {
-        return formatResponse({
-          req, res,
-          code: 500,
-          message: "Gagal mendapatkan anggota tim.",
-          error: teamUserError
-        });
-      }
-
-      const userIds = teamUsers.map(u => u.id);
-
-      const { data, error } = await supabaseInstance
-        .from("childs_table")
-        .select("id, date_of_birth, gender, name")
-        .in("id_user", userIds);
-
-      children = data;
-      childError = error;
-
-    } else {
-      const { data, error } = await supabaseInstance
-        .from("childs_table")
-        .select("id, date_of_birth, gender, name")
-        .eq("id_user", userId);
-
-      children = data;
-      childError = error;
-    }
-
-    if (childError) {
+    if (userError) {
       return formatResponse({
         req, res,
         code: 500,
-        message: "Gagal mendapatkan data anak.",
-        error: childError
+        message: "Gagal mendapatkan data user.",
+        error: userError
       });
     }
 
-    if (!children || children.length === 0) {
-      return formatResponse({
-        req, res,
-        code: 200,
-        message: "Berhasil mendapatkan history anak.",
-        data: [],
-        error: null
-      });
-    }
+    const userRole = userData.role;
+    const userTeamId = userData.id_team;
 
-    let filteredChildren = children;
-    if (id_children) {
-      filteredChildren = children.filter(c => c.id === id_children);
-
-      if (filteredChildren.length === 0) {
+    if (userRole === "staff") {
+      if (!userTeamId) {
         return formatResponse({
           req, res,
-          code: 404,
-          message: "Anak tidak ditemukan atau tidak dalam tim / kepemilikan user.",
+          code: 403,
+          message: "Staff tidak memiliki tim.",
           error: null
         });
       }
-    }
 
-    const childIds = filteredChildren.map(c => c.id);
-    let histories = [];
-    let historyError = null;
-
-    if (isStaff) {
-      const { data, error } = await supabaseInstance
+      const { data: histories, error: historyError } = await supabaseInstance
         .from("histories_child_table")
-        .select("id, id_children, id_team, height, weight, date_check")
-        .eq("id_team", currentTeam);
+        .select(`
+          id,
+          id_children,
+          id_team,
+          height,
+          weight,
+          date_check,
+          childs_table!inner (
+            id,
+            date_of_birth,
+            gender,
+            name,
+            id_user
+          )
+        `)
+        .eq("id_team", userTeamId);
 
-      histories = data;
-      historyError = error;
+      if (historyError) {
+        return formatResponse({
+          req, res,
+          code: 500,
+          message: "Gagal mendapatkan data histori anak.",
+          error: historyError
+        });
+      }
 
-    } else {
-      const { data, error } = await supabaseInstance
-        .from("histories_child_table")
-        .select("id, id_children, id_team, height, weight, date_check")
-        .in("id_children", childIds);
+      if (!histories || histories.length === 0) {
+        return formatResponse({
+          req, res,
+          code: 200,
+          message: "Berhasil mendapatkan history anak.",
+          data: [],
+          error: null
+        });
+      }
 
-      histories = data;
-      historyError = error;
-    }
+      const beratRaw = await getFilePublic("json", "berat_table.json");
+      const tinggiRaw = await getFilePublic("json", "tinggi_table.json");
+      const tinggiVsBeratRaw = await getFilePublic("json", "tinggivsberat_table.json");
 
-    if (historyError) {
-      return formatResponse({
-        req, res,
-        code: 500,
-        message: "Gagal mendapatkan data histori anak.",
-        error: historyError
-      });
-    }
+      const beratTable = JSON.parse(beratRaw);
+      const tinggiTable = JSON.parse(tinggiRaw);
+      const tinggivsberatTable = JSON.parse(tinggiVsBeratRaw);
 
-    const beratRaw = await getFilePublic("json", "berat_table.json");
-    const tinggiRaw = await getFilePublic("json", "tinggi_table.json");
-    const tinggiVsBeratRaw = await getFilePublic("json", "tinggivsberat_table.json");
-
-    const beratTable = JSON.parse(beratRaw);
-    const tinggiTable = JSON.parse(tinggiRaw);
-    const tinggivsberatTable = JSON.parse(tinggiVsBeratRaw);
-
-    const result = histories
-      .map(h => {
-        const child = children.find(c => c.id === h.id_children);
-        if (!child) return null;
+      const result = histories.map(h => {
+        const child = h.childs_table;
 
         const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
 
@@ -321,10 +264,117 @@ export const getChildrenController = async (req, res) => {
           z_score_height_label: getZScoreLabel(zScoreHeight),
           z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
         };
-      }).filter(Boolean);
+      });
+
+      result.sort((a, b) => a.age_in_months - b.age_in_months);
+
+      return formatResponse({
+        req, res,
+        code: 200,
+        message: "Berhasil mendapatkan semua history anak untuk tim staff.",
+        data: result,
+        error: null
+      });
+    }
+
+    const { data: children, error: childError } = await supabaseInstance
+      .from("childs_table")
+      .select("id, date_of_birth, gender, name")
+      .eq("id_user", userId);
+
+    if (childError) {
+      return formatResponse({
+        req, res,
+        code: 500,
+        message: "Gagal mendapatkan data anak.",
+        error: childError
+      });
+    }
+
+    if (!children || children.length === 0) {
+      return formatResponse({
+        req, res,
+        code: 200,
+        message: "Berhasil mendapatkan history anak.",
+        data: [],
+        error: null
+      });
+    }
+
+    let filteredChildren = children;
+    if (id_children) {
+      filteredChildren = children.filter(c => c.id === id_children);
+
+      if (filteredChildren.length === 0) {
+        return formatResponse({
+          req, res,
+          code: 404,
+          message: "Anak tidak ditemukan atau tidak dimiliki oleh user.",
+          error: null
+        });
+      }
+    }
+
+    const childIds = filteredChildren.map(c => c.id);
+
+    const { data: histories, error: historyError } = await supabaseInstance
+      .from("histories_child_table")
+      .select("id, id_children, id_team, height, weight, date_check")
+      .in("id_children", childIds);
+
+    if (historyError) {
+      return formatResponse({
+        req, res,
+        code: 500,
+        message: "Gagal mendapatkan data histori anak.",
+        error: historyError
+      });
+    }
+
+    const beratRaw = await getFilePublic("json", "berat_table.json");
+    const tinggiRaw = await getFilePublic("json", "tinggi_table.json");
+    const tinggiVsBeratRaw = await getFilePublic("json", "tinggivsberat_table.json");
+
+    const beratTable = JSON.parse(beratRaw);
+    const tinggiTable = JSON.parse(tinggiRaw);
+    const tinggivsberatTable = JSON.parse(tinggiVsBeratRaw);
+
+    const result = histories.map(h => {
+      const child = children.find(c => c.id === h.id_children);
+
+      const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
+
+      const weightRef = beratTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
+      const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
+
+      const roundedHeight = Math.round(Number(h.height));
+      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "anak") && item.tinggi === roundedHeight);
+
+      const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
+      const zScoreHeight = calculateZScore(Number(h.height), heightRef);
+      const zScoreWeightForHeight = calculateZScore(Number(h.weight), weightForHeightRef);
+
+      return {
+        children_name: child.name,
+        id: h.id,
+        id_children: h.id_children,
+        id_team: h.id_team || "",
+        age_in_months: ageMonths,
+        age_label: calculateCurrentAge(child.date_of_birth, h.date_check),
+        weight: Number(h.weight),
+        height: Number(h.height),
+        date_check: h.date_check,
+        z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(1)}` : null,
+        z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(1)}` : null,
+        z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(1)}` : null,
+        z_score_weight_label: getZScoreLabel(zScoreWeight),
+        z_score_height_label: getZScoreLabel(zScoreHeight),
+        z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
+      };
+    });
 
     result.sort((a, b) => a.age_in_months - b.age_in_months);
-    const lastData = result[result.length - 1] || null;
+    const lastData = result.length > 0 ? result[result.length - 1] : null;
 
     if (!id_children) {
       return formatResponse({
