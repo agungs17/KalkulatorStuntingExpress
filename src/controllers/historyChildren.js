@@ -186,7 +186,7 @@ export const getChildrenController = async (req, res) => {
         });
       }
 
-      const { data: histories, error: historyError } = await supabaseInstance
+      let query = supabaseInstance
         .from("histories_child_table")
         .select(`
           id,
@@ -205,6 +205,12 @@ export const getChildrenController = async (req, res) => {
         `)
         .eq("id_team", userTeamId);
 
+      if (id_children) {
+        query = query.eq("id_children", id_children);
+      }
+
+      const { data: histories, error: historyError } = await query;
+
       if (historyError) {
         return formatResponse({
           req, res,
@@ -218,8 +224,8 @@ export const getChildrenController = async (req, res) => {
         return formatResponse({
           req, res,
           code: 200,
-          message: "Berhasil mendapatkan history anak.",
-          data: [],
+          message: id_children ? "Tidak ada data history untuk anak ini dalam tim." : "Tidak ada data history anak dalam tim.",
+          data: id_children ? null : [],
           error: null
         });
       }
@@ -267,6 +273,30 @@ export const getChildrenController = async (req, res) => {
       });
 
       result.sort((a, b) => a.age_in_months - b.age_in_months);
+
+      if (id_children) {
+        const child = histories[0].childs_table;
+        const lastData = result.length > 0 ? result[result.length - 1] : null;
+
+        return formatResponse({
+          req, res,
+          code: 200,
+          message: `Berhasil mendapatkan history anak ${child.name}.`,
+          data: {
+            children_name: child.name,
+            age_label: child.date_of_birth ? calculateCurrentAge(child.date_of_birth) : "",
+            date_of_birth: child.date_of_birth || "",
+            last_z_score_weight: lastData?.z_score_weight || "",
+            last_z_score_weight_label: lastData?.z_score_weight_label || "",
+            last_z_score_height: lastData?.z_score_height || "",
+            last_z_score_height_label: lastData?.z_score_height_label || "",
+            last_z_score_heightvsweight: lastData?.z_score_heightvsweight || "",
+            last_z_score_heightvsweight_label: lastData?.z_score_heightvsweight_label || "",
+            milestones: result
+          },
+          error: null
+        });
+      }
 
       return formatResponse({
         req, res,
