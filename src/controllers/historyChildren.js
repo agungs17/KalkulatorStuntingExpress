@@ -63,16 +63,24 @@ export const addOrEditChildrenController = async (req, res) => {
 
     if (userError || !userData) return formatResponse({ req, res, code: 403, message: "User tidak ditemukan.", error: userError || "Not found" });
 
-    const { data } = await supabaseInstance
-      .from("histories_child_table")
-      .select("date_check")
-      .eq("date_check", date_check)
-      .eq("id_children", id_children)
-      .single();
-
-    if(data?.date_check) return formatResponse({ req, res, code: 400, message: "Tanggal sudah digunakan, Silahkan gunakan tanggal lain." });
-
     const idTeam = userData.id_team;
+
+    // Cek duplikat tanggal untuk anak yang sama
+    let duplicateCheckQuery = supabaseInstance
+      .from("histories_child_table")
+      .select("id, date_check")
+      .eq("date_check", date_check)
+      .eq("id_children", id_children);
+
+    // Jika update, exclude data yang sedang diupdate
+    if (!isInsert) duplicateCheckQuery = duplicateCheckQuery.neq("id", id);
+
+    const { data: duplicateData, error: duplicateError } = await duplicateCheckQuery;
+
+    if (duplicateError) return formatResponse({ req, res, code: 500, message: "Gagal memeriksa data duplikat.", error: duplicateError });
+
+    // Jika ada data dengan tanggal yang sama (selain data yang sedang diupdate)
+    if (duplicateData && duplicateData.length > 0) return formatResponse({ req, res, code: 400, message: "Tanggal sudah digunakan, silahkan gunakan tanggal lain." });
 
     // insert
     if (isInsert) {
@@ -93,6 +101,7 @@ export const addOrEditChildrenController = async (req, res) => {
 
     if (fetchError || !existing) return formatResponse({ req, res, code: 404, message: "Data histori tidak ditemukan.", error: fetchError || "Not found" });
 
+    // Validasi akses untuk update
     if (existing.id_team) {
       if(existing.id_team !== userData.id_team) return formatResponse({ req, res, code: 403, message: "Kamu tidak memiliki akses untuk mengedit histori ini.", error: "Forbidden" });
     } else {
@@ -107,7 +116,7 @@ export const addOrEditChildrenController = async (req, res) => {
 
     const { error: updateError } = await supabaseInstance
       .from("histories_child_table")
-      .update({ height, weight, id_team: idTeam })
+      .update({ height, weight, date_check })
       .eq("id", id);
 
     if (updateError) return formatResponse({ req, res, code: 400, message: "Gagal mengupdate histori anak.", error: updateError });
