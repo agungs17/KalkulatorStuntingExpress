@@ -155,6 +155,7 @@ export const deleteHistoryChildrenController = async(req, res) => {
 };
 
 export const getChildrenController = async (req, res) => {
+  const heightGap = 0.7;
   const userId = req.userId;
   const { id_children } = req.query;
 
@@ -251,15 +252,16 @@ export const getChildrenController = async (req, res) => {
         const child = h.childs_table;
 
         const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
+        const isBaby = ageMonths < 24;
 
         const weightRef = beratTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
         const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
 
         const roundedHeight = Math.round(Number(h.height));
-        const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "balita") && item.tinggi === roundedHeight);
+        const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (isBaby ? "bayi" : "balita") && item.tinggi === roundedHeight);
 
         const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
-        const zScoreHeight = calculateZScore(Number(h.height), heightRef);
+        const zScoreHeight = calculateZScore(Number(isBaby ? h.height + heightGap : h.height - heightGap), heightRef);
         const zScoreWeightForHeight = calculateZScore(Number(h.weight), weightForHeightRef);
 
         return {
@@ -272,9 +274,9 @@ export const getChildrenController = async (req, res) => {
           weight: Number(h.weight),
           height: Number(h.height),
           date_check: h.date_check,
-          z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(2)}` : null,
-          z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(2)}` : null,
-          z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(2)}` : null,
+          z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(1)}` : null,
+          z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(1)}` : null,
+          z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(1)}` : null,
           z_score_weight_label: getZScoreLabel(zScoreWeight),
           z_score_height_label: getZScoreLabel(zScoreHeight),
           z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
@@ -382,15 +384,16 @@ export const getChildrenController = async (req, res) => {
       const child = children.find(c => c.id === h.id_children);
 
       const ageMonths = Math.abs(dayjs(child.date_of_birth).diff(dayjs(h.date_check), "month"));
+      const isBaby = ageMonths < 24;
 
       const weightRef = beratTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
       const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
 
       const roundedHeight = Math.round(Number(h.height));
-      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "balita") && item.tinggi === roundedHeight);
+      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (isBaby ? "bayi" : "balita") && item.tinggi === roundedHeight);
 
       const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
-      const zScoreHeight = calculateZScore(Number(h.height), heightRef);
+      const zScoreHeight = calculateZScore(Number(isBaby ? h.height + heightGap : h.height - heightGap), heightRef);
       const zScoreWeightForHeight = calculateZScore(Number(h.weight), weightForHeightRef);
 
       return {
@@ -403,9 +406,9 @@ export const getChildrenController = async (req, res) => {
         weight: Number(h.weight),
         height: Number(h.height),
         date_check: h.date_check,
-        z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(2)}` : null,
-        z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(2)}` : null,
-        z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(2)}` : null,
+        z_score_weight: zScoreWeight !== null ? `${zScoreWeight >= 0 ? "+" : ""}${zScoreWeight.toFixed(1)}` : null,
+        z_score_height: zScoreHeight !== null ? `${zScoreHeight >= 0 ? "+" : ""}${zScoreHeight.toFixed(1)}` : null,
+        z_score_heightvsweight: zScoreWeightForHeight !== null ? `${zScoreWeightForHeight >= 0 ? "+" : ""}${zScoreWeightForHeight.toFixed(1)}` : null,
         z_score_weight_label: getZScoreLabel(zScoreWeight),
         z_score_height_label: getZScoreLabel(zScoreHeight),
         z_score_heightvsweight_label: getZScoreLabel(zScoreWeightForHeight)
