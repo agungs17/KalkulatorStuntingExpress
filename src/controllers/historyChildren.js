@@ -295,6 +295,7 @@ export const getChildrenController = async (req, res) => {
           message: `Berhasil mendapatkan history anak ${child.name}.`,
           data: {
             children_name: child.name,
+            gender: child.gender,
             age_label: child.date_of_birth ? calculateCurrentAge(child.date_of_birth) : "",
             date_of_birth: child.date_of_birth || "",
             last_z_score_weight: lastData?.z_score_weight || "",
@@ -434,6 +435,7 @@ export const getChildrenController = async (req, res) => {
       message: `Berhasil mendapatkan history anak ${filteredChildren[0]?.name}.`,
       data: {
         children_name: filteredChildren[0]?.name || "",
+        gender: filteredChildren[0]?.gender || "",
         age_label: filteredChildren?.[0]?.date_of_birth ? calculateCurrentAge(filteredChildren[0].date_of_birth) : "",
         date_of_birth: filteredChildren?.[0]?.date_of_birth || "",
         last_z_score_weight: lastData?.z_score_weight || "",
