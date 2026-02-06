@@ -256,7 +256,7 @@ export const getChildrenController = async (req, res) => {
         const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
 
         const roundedHeight = Math.round(Number(h.height));
-        const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "anak") && item.tinggi === roundedHeight);
+        const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "balita") && item.tinggi === roundedHeight);
 
         const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
         const zScoreHeight = calculateZScore(Number(h.height), heightRef);
@@ -387,7 +387,7 @@ export const getChildrenController = async (req, res) => {
       const heightRef = tinggiTable.find(item => item.jenis_kelamin === child.gender && item.usia_bulan === ageMonths);
 
       const roundedHeight = Math.round(Number(h.height));
-      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "anak") && item.tinggi === roundedHeight);
+      const weightForHeightRef = tinggivsberatTable.find(item => item.jenis_kelamin === child.gender && item.kelompok_usia === (ageMonths < 24 ? "bayi" : "balita") && item.tinggi === roundedHeight);
 
       const zScoreWeight = calculateZScore(Number(h.weight), weightRef);
       const zScoreHeight = calculateZScore(Number(h.height), heightRef);
