@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "api/index.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "prepare": "husky",
     "start": "node api/index.js",
