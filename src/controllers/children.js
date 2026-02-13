@@ -6,7 +6,7 @@ import supabaseInstance from "../services/supabaseInstance";
 
 export const addOrEditChildrenController = async (req, res) => {
   const userId = req.userId;
-  const { id, nik, name, date_of_birth, gender } = req.body;
+  const { id, nik, name, date_of_birth, gender, history_ilness } = req.body;
 
   const isInsert = id === undefined || id === null || id === "";
 
@@ -15,7 +15,7 @@ export const addOrEditChildrenController = async (req, res) => {
       // insert
       const { error } = await supabaseInstance
         .from("childs_table")
-        .insert({ id_user : userId, nik, name : eachFirstCapitalWord(name), date_of_birth, gender });
+        .insert({ id_user : userId, nik, name : eachFirstCapitalWord(name), date_of_birth, gender : eachFirstCapitalWord(gender), history_ilness : eachFirstCapitalWord(history_ilness) });
 
       if (error) return formatResponse({ req, res, code: 400, message: "Gagal menambahkan data anak.", error });
 
@@ -35,7 +35,7 @@ export const addOrEditChildrenController = async (req, res) => {
 
     const { error } = await supabaseInstance
       .from("childs_table")
-      .update({ nik, name : eachFirstCapitalWord(name), date_of_birth, gender })
+      .update({ nik, name : eachFirstCapitalWord(name), date_of_birth, gender : eachFirstCapitalWord(gender), history_ilness : eachFirstCapitalWord(history_ilness) })
       .eq("id", id)
       .eq("id_user", userId);
 

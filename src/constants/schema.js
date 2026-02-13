@@ -54,13 +54,25 @@ const pattern = {
       "string.pattern.name":
         "Password harus mengandung minimal 1 huruf besar dan 1 angka",
     }),
-  gender : Joi.string()
+  gender: Joi.string()
     .valid(...GENDER_TYPE)
     .required()
     .messages({
       "any.only": "Format jenis kelamin salah!",
       "any.required": "Jenis kelamin wajib diisi",
-      "string.empty": "Jenis kelamin tidak boleh kosong"
+      "string.empty": "Jenis kelamin tidak boleh kosong",
+    }),
+  history_ilness: Joi.string()
+    .trim()
+    .min(3)
+    .max(500)
+    .optional()
+    .allow("")
+    .pattern(/^[A-Za-z\s]+$/, "letters only")
+    .messages({
+      "string.min": "Riwayat penyakit minimal 3 karakter",
+      "string.max": "Riwayat penyakit maksimal 500 karakter",
+      "string.pattern.name": "Riwayat penyakit hanya boleh berisi huruf",
     }),
 };
 
@@ -69,12 +81,13 @@ const childSchema = Joi.object({
   name: pattern.name,
   nik: pattern.nik.optional().allow(""),
   date_of_birth: pattern.minfiveYearDate,
-  gender: pattern.gender
+  gender: pattern.gender,
+  history_ilness: pattern.history_ilness,
 });
 
 const defaultSchema = Joi.object({
   id: pattern.id,
-  id_children : pattern.id,
+  id_children: pattern.id,
   name: pattern.name,
   email: Joi.string().trim().email().required().empty("").messages({
     "string.email": "Email tidak valid",
@@ -113,9 +126,10 @@ const defaultSchema = Joi.object({
     "number.max": "Berat badan maksimal adalah 40 kg",
     "any.required": "Berat badan wajib diisi",
   }),
-  gender : pattern.gender,
+  gender: pattern.gender,
   date_of_birth: pattern.minfiveYearDate,
   date_check: pattern.date,
+  history_ilness: pattern.history_ilness,
 });
 
 export default defaultSchema;

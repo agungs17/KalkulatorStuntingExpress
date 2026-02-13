@@ -43,7 +43,7 @@ export const registerController = async (req, res) => {
     if (children.length > 0) {
       const childrenToInsert = children.map(child => {
         const nikValue = child?.nik === undefined || child?.nik === null || child?.nik === "" ? null : child.nik;
-        return { id_user: id, nik: nikValue, name: eachFirstCapitalWord(child.name), date_of_birth: child.date_of_birth, gender: child.gender, };
+        return { id_user: id, nik: nikValue, name: eachFirstCapitalWord(child.name), date_of_birth: child.date_of_birth, gender: eachFirstCapitalWord(child.gender), history_ilness: eachFirstCapitalWord(child.history_ilness) };
       });
 
       const { error: childrenError } = await supabaseInstance
