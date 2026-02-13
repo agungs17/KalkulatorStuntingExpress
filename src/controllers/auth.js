@@ -96,7 +96,7 @@ export const loginController = async (req, res) => {
   try {
     const { data: user, error } = await supabaseInstance
       .from("users_table")
-      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, id_user, team_name), childs_table(id, nik, name, date_of_birth, gender)")
+      .select("id, email, password_hash, email_verification, nik, role, name, fk_users_team_id:fk_users_team_id(id, id_user, team_name), childs_table(id, nik, name, date_of_birth, gender, history_ilness)")
       .eq("email", email?.toLowerCase?.())
       .limit(1)
       .single();
