@@ -427,6 +427,7 @@ export const getChildrenController = async (req, res) => {
 
     result.sort((a, b) => a.age_in_months - b.age_in_months);
     const lastData = result.length > 0 ? result[result.length - 1] : null;
+    const ageCategory = lastData ? getAgeCategory(lastData.age_in_months) : "2-5 tahun";
 
     if (!id_children) {
       return formatResponse({
@@ -449,10 +450,16 @@ export const getChildrenController = async (req, res) => {
         date_of_birth: filteredChildren?.[0]?.date_of_birth || "",
         last_z_score_weight: lastData?.z_score_weight || "",
         last_z_score_weight_label: lastData?.z_score_weight_label || "",
+        last_conclusion_weight : getConclusionAndSuggestion(lastData?.z_score_weight_label, "weight", ageCategory).conclusion || "",
+        last_suggestion_weight : getConclusionAndSuggestion(lastData?.z_score_weight_label, "weight", ageCategory).suggestion || "",
         last_z_score_height: lastData?.z_score_height || "",
         last_z_score_height_label: lastData?.z_score_height_label || "",
+        last_conclusion_height : getConclusionAndSuggestion(lastData?.z_score_height_label, "height", ageCategory).conclusion || "",
+        last_suggestion_height : getConclusionAndSuggestion(lastData?.z_score_height_label, "height", ageCategory).suggestion || "",
         last_z_score_heightvsweight: lastData?.z_score_heightvsweight || "",
         last_z_score_heightvsweight_label: lastData?.z_score_heightvsweight_label || "",
+        last_conclusion_heightvsweight : getConclusionAndSuggestion(lastData?.z_score_heightvsweight_label, "heightvsweight", ageCategory).conclusion || "",
+        last_suggestion_heightvsweight : getConclusionAndSuggestion(lastData?.z_score_heightvsweight_label, "heightvsweight", ageCategory).suggestion || "",
         milestones: result
       },
       error: null
